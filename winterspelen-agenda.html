@@ -305,15 +305,15 @@ function downloadICS() {
     if (selected.length === 0) return;
 
     const icsContent = generateICS(selected);
-    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
+    const bom = '\uFEFF';
+    const fullContent = bom + icsContent;
+    const dataUri = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(fullContent);
     const a = document.createElement('a');
-    a.href = url;
+    a.href = dataUri;
     a.download = 'winterspelen-2026.ics';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    URL.revokeObjectURL(url);
 }
 
 function updateCount() {
