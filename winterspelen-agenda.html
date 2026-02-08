@@ -44,12 +44,16 @@
         .tag-skeleton { background: #3d2b1a; color: #fbbf24; }
         .tag-bobsleeen { background: #3d1a1a; color: #f87171; }
         .tag-kunstrijden { background: #1a3d3d; color: #67e8f9; }
-        .event-gcal { flex-shrink: 0; padding: 6px 12px; border: 1px solid #2a3a52; border-radius: 6px; background: transparent; color: #7a8ba3; cursor: pointer; font-size: 0.8em; transition: all 0.2s; text-decoration: none; }
-        .event-gcal:hover { border-color: #60a5fa; color: #60a5fa; }
         .hidden { display: none; }
         .no-results { text-align: center; padding: 40px; color: #4a5f7a; }
+        #eventList { padding-bottom: 70px; }
         .method-info { text-align: center; color: #4a6580; font-size: 0.8em; margin-bottom: 16px; padding: 10px; background: #0d1b2e; border-radius: 8px; border: 1px solid #1e2d44; line-height: 1.5; }
         .method-info strong { color: #60a5fa; }
+        .floating-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #0d1b2e; border-top: 1px solid #1e2d44; padding: 12px 20px; display: flex; justify-content: center; align-items: center; gap: 12px; z-index: 50; transform: translateY(100%); transition: transform 0.3s ease; }
+        .floating-bar.visible { transform: translateY(0); }
+        .floating-bar .count-badge { background: #1e3a5f; color: #60a5fa; padding: 4px 10px; border-radius: 10px; font-size: 0.85em; }
+        .event-gcal { flex-shrink: 0; padding: 6px 12px; border: 1px solid #2a3a52; border-radius: 6px; background: transparent; color: #7a8ba3; cursor: pointer; font-size: 0.8em; transition: all 0.2s; text-decoration: none; }
+        .event-gcal:hover { border-color: #60a5fa; color: #60a5fa; }
         @media (max-width: 600px) {
             .event-card { flex-wrap: wrap; }
             .event-gcal { width: 100%; text-align: center; margin-top: 4px; }
@@ -69,19 +73,20 @@
             <label for="selectAll">Alles selecteren</label>
             <span class="count-badge" id="countBadge">0 geselecteerd</span>
         </div>
-        <div class="btn-group">
-            <button class="add-selected" id="addGcal" disabled>+ Google Agenda</button>
-            <button class="download-ics" id="downloadIcs" disabled>Download .ics</button>
-        </div>
     </div>
 
     <div class="method-info">
         <strong>Hoe werkt het?</strong><br>
         <strong>+ Agenda</strong> &mdash; Voegt het event direct toe aan je Google Agenda<br>
-        <strong>Download .ics</strong> &mdash; Selecteer meerdere events met de checkboxes en download ze als bestand. Open het bestand om ze toe te voegen aan je agenda-app.
+        <strong>Download .ics</strong> &mdash; Selecteer meerdere events met de checkboxes en download ze als bestand voor je agenda-app
     </div>
 
     <div id="eventList"></div>
+</div>
+
+<div class="floating-bar" id="floatingBar">
+    <span class="count-badge" id="floatingCount">0 geselecteerd</span>
+    <button class="add-selected" id="downloadIcs">Download .ics</button>
 </div>
 
 <script>
@@ -355,20 +360,11 @@ function downloadICS() {
     }
 }
 
-function addToGoogleCalendar() {
-    const selected = [...selectedEvents].sort((a,b) => a - b);
-    if (selected.length === 0) return;
-    if (selected.length > 10 && !confirm(`Je staat op het punt ${selected.length} tabbladen te openen. Doorgaan?`)) return;
-    selected.forEach((idx, i) => {
-        setTimeout(() => window.open(getGCalUrl(events[idx]), '_blank'), i * 300);
-    });
-}
-
 function updateCount() {
-    document.getElementById('countBadge').textContent = `${selectedEvents.size} geselecteerd`;
-    const disabled = selectedEvents.size === 0;
-    document.getElementById('downloadIcs').disabled = disabled;
-    document.getElementById('addGcal').disabled = disabled;
+    const count = selectedEvents.size;
+    document.getElementById('countBadge').textContent = `${count} geselecteerd`;
+    document.getElementById('floatingCount').textContent = `${count} geselecteerd`;
+    document.getElementById('floatingBar').classList.toggle('visible', count > 0);
 }
 
 function renderEvents() {
@@ -436,10 +432,19 @@ document.getElementById('selectAll').addEventListener('change', function() {
 });
 
 document.getElementById('downloadIcs').addEventListener('click', downloadICS);
-document.getElementById('addGcal').addEventListener('click', addToGoogleCalendar);
 
 initFilters();
 renderEvents();
+
+if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;display:flex;justify-content:center;align-items:center;padding:20px;';
+    overlay.innerHTML = '<div style="background:#0d1b2e;border:1px solid #1e2d44;border-radius:12px;padding:24px;max-width:400px;width:100%;text-align:center;">' +
+        '<h3 style="color:#60a5fa;margin-bottom:12px;font-size:1.1em;">Niet beschikbaar op iOS</h3>' +
+        '<p style="color:#94a3b8;font-size:0.9em;line-height:1.5;margin-bottom:20px;">Olympical is niet volledig compatible met iOS. We raden aan om Olympical op je desktop te gebruiken.</p>' +
+        '<button style="padding:8px 24px;border:none;border-radius:8px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:white;cursor:pointer;font-size:0.9em;font-weight:600;" onclick="this.closest(\'div[style*=fixed]\').remove()">Begrepen</button></div>';
+    document.body.appendChild(overlay);
+}
 </script>
 </body>
 </html>
