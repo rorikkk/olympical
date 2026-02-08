@@ -435,6 +435,13 @@ document.getElementById('downloadIcs').addEventListener('click', downloadICS);
 
 initFilters();
 renderEvents();
+
+if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+    const banner = document.createElement('div');
+    banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#1a2744;border-bottom:1px solid #2a3a52;padding:12px 20px;display:flex;justify-content:space-between;align-items:center;z-index:100;font-size:0.85em;color:#94a3b8;';
+    banner.innerHTML = '<span>Olympical is niet volledig compatible met iOS. We raden aan om Olympical op je desktop te gebruiken.</span><button style="background:none;border:1px solid #2a3a52;border-radius:6px;color:#7a8ba3;cursor:pointer;padding:4px 10px;margin-left:12px;flex-shrink:0" onclick="this.parentElement.remove()">Sluiten</button>';
+    document.body.prepend(banner);
+}
 </script>
 </body>
 </html>
