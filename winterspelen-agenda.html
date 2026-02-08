@@ -332,15 +332,24 @@ function downloadICS() {
     if (selected.length === 0) return;
 
     const icsContent = generateICS(selected);
-    const bom = '\uFEFF';
-    const fullContent = bom + icsContent;
-    const dataUri = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(fullContent);
-    const a = document.createElement('a');
-    a.href = dataUri;
-    a.download = 'winterspelen-2026.ics';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    if (isMobile) {
+        const blob = new Blob([icsContent], { type: 'text/calendar' });
+        const url = URL.createObjectURL(blob);
+        window.location.href = url;
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+    } else {
+        const blob = new Blob([icsContent], { type: 'text/calendar' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'winterspelen-2026.ics';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
 }
 
 function updateCount() {
