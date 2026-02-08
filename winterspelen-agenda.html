@@ -70,15 +70,14 @@
             <span class="count-badge" id="countBadge">0 geselecteerd</span>
         </div>
         <div class="btn-group">
-            <button class="add-selected" id="addGcal" disabled>+ Google Agenda</button>
-            <button class="download-ics" id="downloadIcs" disabled>Download .ics</button>
+            <button class="add-selected" id="downloadIcs" disabled>Download .ics</button>
         </div>
     </div>
 
     <div class="method-info">
-        <strong>Hoe werkt het?</strong> Selecteer events met de checkboxes, kies dan:<br>
-        <strong>+ Google Agenda</strong> &mdash; Voegt events toe aan Google Agenda (opent per event een tabblad)<br>
-        <strong>Download .ics</strong> &mdash; Download als bestand voor Apple Agenda of andere agenda-apps
+        <strong>Hoe werkt het?</strong><br>
+        <strong>+ Agenda</strong> &mdash; Voegt het event direct toe aan je Google Agenda<br>
+        <strong>Download .ics</strong> &mdash; Selecteer meerdere events met de checkboxes en download ze als bestand voor je agenda-app
     </div>
 
     <div id="eventList"></div>
@@ -355,20 +354,9 @@ function downloadICS() {
     }
 }
 
-function addToGoogleCalendar() {
-    const selected = [...selectedEvents].sort((a,b) => a - b);
-    if (selected.length === 0) return;
-    if (selected.length > 10 && !confirm(`Je staat op het punt ${selected.length} tabbladen te openen. Doorgaan?`)) return;
-    selected.forEach((idx, i) => {
-        setTimeout(() => window.open(getGCalUrl(events[idx]), '_blank'), i * 300);
-    });
-}
-
 function updateCount() {
     document.getElementById('countBadge').textContent = `${selectedEvents.size} geselecteerd`;
-    const disabled = selectedEvents.size === 0;
-    document.getElementById('downloadIcs').disabled = disabled;
-    document.getElementById('addGcal').disabled = disabled;
+    document.getElementById('downloadIcs').disabled = selectedEvents.size === 0;
 }
 
 function renderEvents() {
@@ -436,7 +424,6 @@ document.getElementById('selectAll').addEventListener('change', function() {
 });
 
 document.getElementById('downloadIcs').addEventListener('click', downloadICS);
-document.getElementById('addGcal').addEventListener('click', addToGoogleCalendar);
 
 initFilters();
 renderEvents();
