@@ -44,6 +44,7 @@
         .tag-skeleton { background: #3d2b1a; color: #fbbf24; }
         .tag-bobsleeen { background: #3d1a1a; color: #f87171; }
         .tag-kunstrijden { background: #1a3d3d; color: #67e8f9; }
+        .tag-ceremonie { background: #3d3d1a; color: #fde68a; }
         .hidden { display: none; }
         .no-results { text-align: center; padding: 40px; color: #4a5f7a; }
         #eventList { padding-bottom: 70px; }
@@ -95,114 +96,112 @@
 </div>
 
 <script>
-const DURATION_MS = 45 * 60 * 1000; // 45 minuten
-
 const events = [
+    // Vrijdag 6 februari
+    { date: "2026-02-06", day: "Vrijdag 6 februari", time: "20:00", endTime: "22:30", sport: "Ceremonie", title: "Openingsceremonie", athletes: "Nederland" },
+
+    // Zaterdag 7 februari
+    { date: "2026-02-07", day: "Zaterdag 7 februari", time: "16:00", endTime: "17:35", sport: "Schaatsen", title: "3000 meter (v)", athletes: "Merel Conijn, Antoinette Rijpma-de Jong, Bente Kerkhoff" },
+
     // Zondag 8 februari
-    { date: "2026-02-08", day: "Zondag 8 februari", time: "09:00", sport: "Snowboarden", title: "Parallelreuzenslalom (v), kwalificaties", athletes: "Michelle Dekker" },
-    { date: "2026-02-08", day: "Zondag 8 februari", time: "13:00", sport: "Snowboarden", title: "Parallelreuzenslalom (v), achtste finales", athletes: "mogelijk Michelle Dekker" },
-    { date: "2026-02-08", day: "Zondag 8 februari", time: "13:48", sport: "Snowboarden", title: "Parallelreuzenslalom (v), kwartfinales", athletes: "mogelijk Michelle Dekker" },
-    { date: "2026-02-08", day: "Zondag 8 februari", time: "14:12", sport: "Snowboarden", title: "Parallelreuzenslalom (v), halve finales", athletes: "mogelijk Michelle Dekker" },
-    { date: "2026-02-08", day: "Zondag 8 februari", time: "14:29", sport: "Snowboarden", title: "Parallelreuzenslalom (v), finale", athletes: "mogelijk Michelle Dekker" },
-    { date: "2026-02-08", day: "Zondag 8 februari", time: "16:00", sport: "Schaatsen", title: "5000 meter (m)", athletes: "Stijn van de Bunt, Chris Huizinga, Marcel Bosker" },
-    { date: "2026-02-08", day: "Zondag 8 februari", time: "19:30", sport: "Snowboarden", title: "Big air (v), kwalificaties", athletes: "Melissa Peperkamp, Romy van Vreden" },
+    { date: "2026-02-08", day: "Zondag 8 februari", time: "09:00", endTime: "10:30", sport: "Snowboarden", title: "Parallelreuzenslalom (v), kwalificaties", athletes: "Michelle Dekker" },
+    { date: "2026-02-08", day: "Zondag 8 februari", time: "13:00", endTime: "13:45", sport: "Snowboarden", title: "Parallelreuzenslalom (v), achtste finales", athletes: "mogelijk Michelle Dekker" },
+    { date: "2026-02-08", day: "Zondag 8 februari", time: "13:48", endTime: "14:10", sport: "Snowboarden", title: "Parallelreuzenslalom (v), kwartfinales", athletes: "mogelijk Michelle Dekker" },
+    { date: "2026-02-08", day: "Zondag 8 februari", time: "14:12", endTime: "14:27", sport: "Snowboarden", title: "Parallelreuzenslalom (v), halve finales", athletes: "mogelijk Michelle Dekker" },
+    { date: "2026-02-08", day: "Zondag 8 februari", time: "14:29", endTime: "14:50", sport: "Snowboarden", title: "Parallelreuzenslalom (v), finale", athletes: "mogelijk Michelle Dekker" },
+    { date: "2026-02-08", day: "Zondag 8 februari", time: "16:00", endTime: "18:15", sport: "Schaatsen", title: "5000 meter (m)", athletes: "Stijn van de Bunt, Chris Huizinga, Marcel Bosker" },
+    { date: "2026-02-08", day: "Zondag 8 februari", time: "19:30", endTime: "21:00", sport: "Snowboarden", title: "Big air (v), kwalificaties", athletes: "Melissa Peperkamp, Romy van Vreden" },
 
     // Maandag 9 februari
-    { date: "2026-02-09", day: "Maandag 9 februari", time: "17:30", sport: "Schaatsen", title: "1000 meter (v)", athletes: "Jutta Leerdam, Femke Kok, Suzanne Schulting" },
-    { date: "2026-02-09", day: "Maandag 9 februari", time: "19:30", sport: "Snowboarden", title: "Big air (v), finale", athletes: "mogelijk Melissa Peperkamp, Romy van Vreden" },
+    { date: "2026-02-09", day: "Maandag 9 februari", time: "17:30", endTime: "19:10", sport: "Schaatsen", title: "1000 meter (v)", athletes: "Jutta Leerdam, Femke Kok, Suzanne Schulting" },
+    { date: "2026-02-09", day: "Maandag 9 februari", time: "19:30", endTime: "20:30", sport: "Snowboarden", title: "Big air (v), finale", athletes: "mogelijk Melissa Peperkamp, Romy van Vreden" },
 
     // Dinsdag 10 februari
-    { date: "2026-02-10", day: "Dinsdag 10 februari", time: "10:30", sport: "Shorttrack", title: "500 meter (v), series", athletes: "Xandra Velzeboer" },
-    { date: "2026-02-10", day: "Dinsdag 10 februari", time: "11:08", sport: "Shorttrack", title: "1000 meter (m), series", athletes: "Jens van 't Wout" },
-    { date: "2026-02-10", day: "Dinsdag 10 februari", time: "11:53", sport: "Shorttrack", title: "Gemengde aflossing, kwartfinales", athletes: "Nederland" },
-    { date: "2026-02-10", day: "Dinsdag 10 februari", time: "12:23", sport: "Shorttrack", title: "Gemengde aflossing, halve finales", athletes: "mogelijk Nederland" },
-    { date: "2026-02-10", day: "Dinsdag 10 februari", time: "12:56", sport: "Shorttrack", title: "Gemengde aflossing, finale", athletes: "mogelijk Nederland" },
+    { date: "2026-02-10", day: "Dinsdag 10 februari", time: "10:30", endTime: "11:05", sport: "Shorttrack", title: "500 meter (v), series", athletes: "Xandra Velzeboer, Michelle Velzeboer, Selma Poutsma" },
+    { date: "2026-02-10", day: "Dinsdag 10 februari", time: "11:08", endTime: "11:50", sport: "Shorttrack", title: "1000 meter (m), series", athletes: "Jens van 't Wout, Teun Boer, Melle van 't Wout" },
+    { date: "2026-02-10", day: "Dinsdag 10 februari", time: "11:53", endTime: "12:20", sport: "Shorttrack", title: "Mixed relay, kwartfinales", athletes: "Nederland" },
+    { date: "2026-02-10", day: "Dinsdag 10 februari", time: "12:23", endTime: "12:53", sport: "Shorttrack", title: "Mixed relay, halve finales", athletes: "mogelijk Nederland" },
+    { date: "2026-02-10", day: "Dinsdag 10 februari", time: "12:56", endTime: "13:15", sport: "Shorttrack", title: "Mixed relay, finale", athletes: "mogelijk Nederland" },
 
     // Woensdag 11 februari
-    { date: "2026-02-11", day: "Woensdag 11 februari", time: "18:30", sport: "Schaatsen", title: "1000 meter (m)", athletes: "Jenning de Boo, Joep Wennemars, Kjeld Nuis" },
+    { date: "2026-02-11", day: "Woensdag 11 februari", time: "18:30", endTime: "20:00", sport: "Schaatsen", title: "1000 meter (m)", athletes: "Jenning de Boo, Joep Wennemars, Kjeld Nuis" },
 
     // Donderdag 12 februari
-    { date: "2026-02-12", day: "Donderdag 12 februari", time: "10:00", sport: "Snowboarden", title: "Boardercross, kwalificaties", athletes: "Glenn de Blois" },
-    { date: "2026-02-12", day: "Donderdag 12 februari", time: "13:45", sport: "Snowboarden", title: "Boardercross, achtste finales", athletes: "mogelijk Glenn de Blois" },
-    { date: "2026-02-12", day: "Donderdag 12 februari", time: "14:18", sport: "Snowboarden", title: "Boardercross, kwartfinales", athletes: "mogelijk Glenn de Blois" },
-    { date: "2026-02-12", day: "Donderdag 12 februari", time: "14:39", sport: "Snowboarden", title: "Boardercross, halve finales", athletes: "mogelijk Glenn de Blois" },
-    { date: "2026-02-12", day: "Donderdag 12 februari", time: "14:56", sport: "Snowboarden", title: "Boardercross, finale", athletes: "mogelijk Glenn de Blois" },
-    { date: "2026-02-12", day: "Donderdag 12 februari", time: "16:30", sport: "Schaatsen", title: "5000 meter (v)", athletes: "Merel Conijn, Bente Kerkhoff" },
-    { date: "2026-02-12", day: "Donderdag 12 februari", time: "20:15", sport: "Shorttrack", title: "500 meter (v), kwartfinales", athletes: "mogelijk Xandra Velzeboer" },
-    { date: "2026-02-12", day: "Donderdag 12 februari", time: "20:29", sport: "Shorttrack", title: "1000 meter (m), kwartfinales", athletes: "mogelijk Jens van 't Wout" },
-    { date: "2026-02-12", day: "Donderdag 12 februari", time: "20:58", sport: "Shorttrack", title: "500 meter (v), halve finales", athletes: "mogelijk Xandra Velzeboer" },
-    { date: "2026-02-12", day: "Donderdag 12 februari", time: "21:05", sport: "Shorttrack", title: "1000 meter (m), halve finales", athletes: "mogelijk Jens van 't Wout" },
-    { date: "2026-02-12", day: "Donderdag 12 februari", time: "21:31", sport: "Shorttrack", title: "500 meter (v), finale", athletes: "mogelijk Xandra Velzeboer" },
-    { date: "2026-02-12", day: "Donderdag 12 februari", time: "21:43", sport: "Shorttrack", title: "1000 meter (m), finale", athletes: "mogelijk Jens van 't Wout" },
+    { date: "2026-02-12", day: "Donderdag 12 februari", time: "10:00", endTime: "11:30", sport: "Snowboarden", title: "Cross (m), kwalificaties", athletes: "Glenn de Blois" },
+    { date: "2026-02-12", day: "Donderdag 12 februari", time: "13:45", endTime: "14:15", sport: "Snowboarden", title: "Cross (m), achtste finales", athletes: "mogelijk Glenn de Blois" },
+    { date: "2026-02-12", day: "Donderdag 12 februari", time: "14:18", endTime: "14:36", sport: "Snowboarden", title: "Cross (m), kwartfinales", athletes: "mogelijk Glenn de Blois" },
+    { date: "2026-02-12", day: "Donderdag 12 februari", time: "14:39", endTime: "14:54", sport: "Snowboarden", title: "Cross (m), halve finales", athletes: "mogelijk Glenn de Blois" },
+    { date: "2026-02-12", day: "Donderdag 12 februari", time: "14:56", endTime: "15:15", sport: "Snowboarden", title: "Cross (m), finale", athletes: "mogelijk Glenn de Blois" },
+    { date: "2026-02-12", day: "Donderdag 12 februari", time: "16:30", endTime: "18:30", sport: "Schaatsen", title: "5000 meter (v)", athletes: "Merel Conijn, Bente Kerkhoff" },
+    { date: "2026-02-12", day: "Donderdag 12 februari", time: "20:15", endTime: "20:27", sport: "Shorttrack", title: "500 meter (v), kwartfinales", athletes: "mogelijk Xandra Velzeboer, Michelle Velzeboer, Selma Poutsma" },
+    { date: "2026-02-12", day: "Donderdag 12 februari", time: "20:29", endTime: "20:55", sport: "Shorttrack", title: "1000 meter (m), kwartfinales", athletes: "mogelijk Jens van 't Wout, Teun Boer, Melle van 't Wout" },
+    { date: "2026-02-12", day: "Donderdag 12 februari", time: "20:58", endTime: "21:03", sport: "Shorttrack", title: "500 meter (v), halve finales", athletes: "mogelijk Xandra Velzeboer, Michelle Velzeboer, Selma Poutsma" },
+    { date: "2026-02-12", day: "Donderdag 12 februari", time: "21:05", endTime: "21:28", sport: "Shorttrack", title: "1000 meter (m), halve finales", athletes: "mogelijk Jens van 't Wout, Teun Boer, Melle van 't Wout" },
+    { date: "2026-02-12", day: "Donderdag 12 februari", time: "21:31", endTime: "21:40", sport: "Shorttrack", title: "500 meter (v), finale", athletes: "mogelijk Xandra Velzeboer, Michelle Velzeboer, Selma Poutsma" },
+    { date: "2026-02-12", day: "Donderdag 12 februari", time: "21:43", endTime: "21:55", sport: "Shorttrack", title: "1000 meter (m), finale", athletes: "mogelijk Jens van 't Wout, Teun Boer, Melle van 't Wout" },
 
     // Vrijdag 13 februari
-    { date: "2026-02-13", day: "Vrijdag 13 februari", time: "16:00", sport: "Schaatsen", title: "10.000 meter (m)", athletes: "Stijn van de Bunt, Jorrit Bergsma" },
-    { date: "2026-02-13", day: "Vrijdag 13 februari", time: "16:00", sport: "Skeleton", title: "Heat 1 (v)", athletes: "Kimberley Bos" },
-    { date: "2026-02-13", day: "Vrijdag 13 februari", time: "17:48", sport: "Skeleton", title: "Heat 2 (v)", athletes: "Kimberley Bos" },
+    { date: "2026-02-13", day: "Vrijdag 13 februari", time: "16:00", endTime: "18:30", sport: "Schaatsen", title: "10.000 meter (m)", athletes: "Stijn van de Bunt, Jorrit Bergsma" },
+    { date: "2026-02-13", day: "Vrijdag 13 februari", time: "16:00", endTime: "17:45", sport: "Skeleton", title: "Heat 1 & 2 (v)", athletes: "Kimberley Bos" },
 
     // Zaterdag 14 februari
-    { date: "2026-02-14", day: "Zaterdag 14 februari", time: "16:00", sport: "Schaatsen", title: "Ploegenachtervolging (v), kwartfinales", athletes: "Nederland" },
-    { date: "2026-02-14", day: "Zaterdag 14 februari", time: "17:00", sport: "Schaatsen", title: "500 meter (m)", athletes: "Jenning de Boo, Sebas Diniz, Joep Wennemars" },
-    { date: "2026-02-14", day: "Zaterdag 14 februari", time: "18:00", sport: "Skeleton", title: "Heat 3 (v)", athletes: "Kimberley Bos" },
-    { date: "2026-02-14", day: "Zaterdag 14 februari", time: "19:44", sport: "Skeleton", title: "Heat 4 (v)", athletes: "Kimberley Bos" },
-    { date: "2026-02-14", day: "Zaterdag 14 februari", time: "20:15", sport: "Shorttrack", title: "1500 meter (m), kwartfinales", athletes: "mogelijk Jens van 't Wout" },
-    { date: "2026-02-14", day: "Zaterdag 14 februari", time: "20:59", sport: "Shorttrack", title: "1000 meter (v), series", athletes: "Xandra Velzeboer" },
-    { date: "2026-02-14", day: "Zaterdag 14 februari", time: "21:44", sport: "Shorttrack", title: "1500 meter (m), halve finales", athletes: "mogelijk Jens van 't Wout" },
-    { date: "2026-02-14", day: "Zaterdag 14 februari", time: "22:00", sport: "Shorttrack", title: "Aflossing (v), halve finales", athletes: "Nederland" },
-    { date: "2026-02-14", day: "Zaterdag 14 februari", time: "22:34", sport: "Shorttrack", title: "1500 meter (m), finale", athletes: "mogelijk Jens van 't Wout" },
+    { date: "2026-02-14", day: "Zaterdag 14 februari", time: "16:00", endTime: "16:50", sport: "Schaatsen", title: "Ploegenachtervolging (v), kwartfinales", athletes: "Antoinette Rijpma-de Jong, Merel Conijn, Bente Kerkhoff" },
+    { date: "2026-02-14", day: "Zaterdag 14 februari", time: "17:00", endTime: "18:00", sport: "Schaatsen", title: "500 meter (m)", athletes: "Jenning de Boo, Sebas Diniz, Joep Wennemars" },
+    { date: "2026-02-14", day: "Zaterdag 14 februari", time: "18:00", endTime: "19:40", sport: "Skeleton", title: "Heat 3 & 4 (v)", athletes: "Kimberley Bos" },
+    { date: "2026-02-14", day: "Zaterdag 14 februari", time: "20:15", endTime: "20:55", sport: "Shorttrack", title: "1500 meter (m), kwartfinales", athletes: "mogelijk Jens van 't Wout, Friso Emons, Itzhak de Laat" },
+    { date: "2026-02-14", day: "Zaterdag 14 februari", time: "20:59", endTime: "21:40", sport: "Shorttrack", title: "1000 meter (v), series", athletes: "Xandra Velzeboer, Michelle Velzeboer, Suzanne Schulting" },
+    { date: "2026-02-14", day: "Zaterdag 14 februari", time: "21:44", endTime: "21:58", sport: "Shorttrack", title: "1500 meter (m), halve finales", athletes: "mogelijk Jens van 't Wout, Friso Emons, Itzhak de Laat" },
+    { date: "2026-02-14", day: "Zaterdag 14 februari", time: "22:00", endTime: "22:30", sport: "Shorttrack", title: "Aflossing (v), halve finales", athletes: "Nederland" },
+    { date: "2026-02-14", day: "Zaterdag 14 februari", time: "22:34", endTime: "22:50", sport: "Shorttrack", title: "1500 meter (m), finale", athletes: "mogelijk Jens van 't Wout, Friso Emons, Itzhak de Laat" },
 
     // Zondag 15 februari
-    { date: "2026-02-15", day: "Zondag 15 februari", time: "16:00", sport: "Schaatsen", title: "Ploegenachtervolging (m), kwartfinales", athletes: "Nederland" },
-    { date: "2026-02-15", day: "Zondag 15 februari", time: "17:03", sport: "Schaatsen", title: "500 meter (v)", athletes: "Femke Kok, Jutta Leerdam, Anna Boersma" },
-    { date: "2026-02-15", day: "Zondag 15 februari", time: "19:45", sport: "Kunstrijden", title: "Paren, korte kür", athletes: "Michel Tsiba, Daria Danilova" },
+    { date: "2026-02-15", day: "Zondag 15 februari", time: "16:00", endTime: "16:50", sport: "Schaatsen", title: "Ploegenachtervolging (m), kwartfinales", athletes: "Joep Wennemars, Chris Huizinga, Marcel Bosker" },
+    { date: "2026-02-15", day: "Zondag 15 februari", time: "17:03", endTime: "18:00", sport: "Schaatsen", title: "500 meter (v)", athletes: "Femke Kok, Jutta Leerdam, Anna Boersma" },
+    { date: "2026-02-15", day: "Zondag 15 februari", time: "19:45", endTime: "22:30", sport: "Kunstrijden", title: "Paren, korte kür", athletes: "Michel Tsiba, Daria Danilova" },
 
     // Maandag 16 februari
-    { date: "2026-02-16", day: "Maandag 16 februari", time: "10:00", sport: "Bobsleeën", title: "Tweemansbob (m), heat 1", athletes: "Dave Wesselink, Jelen Franjic" },
-    { date: "2026-02-16", day: "Maandag 16 februari", time: "10:30", sport: "Snowboarden", title: "Slopestyle (v), kwalificaties", athletes: "Melissa Peperkamp, Romy van Vreden" },
-    { date: "2026-02-16", day: "Maandag 16 februari", time: "11:00", sport: "Shorttrack", title: "1000 meter (v), kwartfinales", athletes: "mogelijk Xandra Velzeboer" },
-    { date: "2026-02-16", day: "Maandag 16 februari", time: "11:18", sport: "Shorttrack", title: "500 meter (m), series", athletes: "Jens van 't Wout" },
-    { date: "2026-02-16", day: "Maandag 16 februari", time: "11:55", sport: "Shorttrack", title: "1000 meter (v), halve finales", athletes: "mogelijk Xandra Velzeboer" },
-    { date: "2026-02-16", day: "Maandag 16 februari", time: "11:57", sport: "Bobsleeën", title: "Tweemansbob (m), heat 2", athletes: "Dave Wesselink, Jelen Franjic" },
-    { date: "2026-02-16", day: "Maandag 16 februari", time: "12:04", sport: "Shorttrack", title: "Aflossing (m), halve finales", athletes: "Nederland" },
-    { date: "2026-02-16", day: "Maandag 16 februari", time: "12:42", sport: "Shorttrack", title: "1000 meter (v), finale", athletes: "mogelijk Xandra Velzeboer" },
-    { date: "2026-02-16", day: "Maandag 16 februari", time: "20:00", sport: "Kunstrijden", title: "Paren, vrije kür", athletes: "mogelijk Michel Tsiba, Daria Danilova" },
+    { date: "2026-02-16", day: "Maandag 16 februari", time: "10:00", endTime: "11:55", sport: "Bobsleeën", title: "Tweemansbob (m), heat 1 & 2", athletes: "Dave Wesselink, Jelen Franjic (reserves: Janko Franjic, Dennis Veenstra)" },
+    { date: "2026-02-16", day: "Maandag 16 februari", time: "10:30", endTime: "12:30", sport: "Snowboarden", title: "Slopestyle (v), kwalificaties", athletes: "Melissa Peperkamp, Romy van Vreden" },
+    { date: "2026-02-16", day: "Maandag 16 februari", time: "11:00", endTime: "11:15", sport: "Shorttrack", title: "1000 meter (v), kwartfinales", athletes: "mogelijk Xandra Velzeboer, Michelle Velzeboer, Suzanne Schulting" },
+    { date: "2026-02-16", day: "Maandag 16 februari", time: "11:18", endTime: "11:53", sport: "Shorttrack", title: "500 meter (m), series", athletes: "Jens van 't Wout, Teun Boer, Melle van 't Wout" },
+    { date: "2026-02-16", day: "Maandag 16 februari", time: "11:55", endTime: "12:02", sport: "Shorttrack", title: "1000 meter (v), halve finales", athletes: "mogelijk Xandra Velzeboer, Michelle Velzeboer, Suzanne Schulting" },
+    { date: "2026-02-16", day: "Maandag 16 februari", time: "12:04", endTime: "12:40", sport: "Shorttrack", title: "Aflossing (m), halve finales", athletes: "Nederland" },
+    { date: "2026-02-16", day: "Maandag 16 februari", time: "12:42", endTime: "12:55", sport: "Shorttrack", title: "1000 meter (v), finale", athletes: "mogelijk Xandra Velzeboer, Michelle Velzeboer, Suzanne Schulting" },
+    { date: "2026-02-16", day: "Maandag 16 februari", time: "20:00", endTime: "23:00", sport: "Kunstrijden", title: "Paren, vrije kür", athletes: "mogelijk Michel Tsiba, Daria Danilova" },
 
     // Dinsdag 17 februari
-    { date: "2026-02-17", day: "Dinsdag 17 februari", time: "13:00", sport: "Snowboarden", title: "Slopestyle (v), finale", athletes: "mogelijk Melissa Peperkamp, Romy van Vreden" },
-    { date: "2026-02-17", day: "Dinsdag 17 februari", time: "14:30", sport: "Schaatsen", title: "Ploegenachtervolging (m), halve finales", athletes: "mogelijk Nederland" },
-    { date: "2026-02-17", day: "Dinsdag 17 februari", time: "14:52", sport: "Schaatsen", title: "Ploegenachtervolging (v), halve finales", athletes: "mogelijk Nederland" },
-    { date: "2026-02-17", day: "Dinsdag 17 februari", time: "16:28", sport: "Schaatsen", title: "Ploegenachtervolging (m), finale", athletes: "mogelijk Nederland" },
-    { date: "2026-02-17", day: "Dinsdag 17 februari", time: "16:47", sport: "Schaatsen", title: "Ploegenachtervolging (v), finale", athletes: "mogelijk Nederland" },
-    { date: "2026-02-17", day: "Dinsdag 17 februari", time: "19:00", sport: "Bobsleeën", title: "Tweemansbob (m), heat 3", athletes: "Dave Wesselink, Jelen Franjic" },
-    { date: "2026-02-17", day: "Dinsdag 17 februari", time: "21:05", sport: "Bobsleeën", title: "Tweemansbob (m), heat 4", athletes: "mogelijk Dave Wesselink, Jelen Franjic" },
+    { date: "2026-02-17", day: "Dinsdag 17 februari", time: "13:00", endTime: "14:20", sport: "Snowboarden", title: "Slopestyle (v), finale", athletes: "mogelijk Melissa Peperkamp, Romy van Vreden" },
+    { date: "2026-02-17", day: "Dinsdag 17 februari", time: "14:30", endTime: "14:50", sport: "Schaatsen", title: "Ploegenachtervolging (m), halve finales", athletes: "mogelijk Joep Wennemars, Chris Huizinga, Marcel Bosker" },
+    { date: "2026-02-17", day: "Dinsdag 17 februari", time: "14:52", endTime: "15:12", sport: "Schaatsen", title: "Ploegenachtervolging (v), halve finales", athletes: "mogelijk Antoinette Rijpma-de Jong, Merel Conijn, Bente Kerkhoff" },
+    { date: "2026-02-17", day: "Dinsdag 17 februari", time: "16:28", endTime: "16:45", sport: "Schaatsen", title: "Ploegenachtervolging (m), finale", athletes: "mogelijk Joep Wennemars, Chris Huizinga, Marcel Bosker" },
+    { date: "2026-02-17", day: "Dinsdag 17 februari", time: "16:47", endTime: "17:05", sport: "Schaatsen", title: "Ploegenachtervolging (v), finale", athletes: "mogelijk Antoinette Rijpma-de Jong, Merel Conijn, Bente Kerkhoff" },
+    { date: "2026-02-17", day: "Dinsdag 17 februari", time: "19:00", endTime: "21:00", sport: "Bobsleeën", title: "Tweemansbob (m), heat 3 & 4", athletes: "Dave Wesselink, Jelen Franjic (reserves: Janko Franjic, Dennis Veenstra)" },
 
     // Woensdag 18 februari
-    { date: "2026-02-18", day: "Woensdag 18 februari", time: "20:15", sport: "Shorttrack", title: "500 meter (m), kwartfinales", athletes: "mogelijk Jens van 't Wout" },
-    { date: "2026-02-18", day: "Woensdag 18 februari", time: "20:42", sport: "Shorttrack", title: "500 meter (m), halve finales", athletes: "mogelijk Jens van 't Wout" },
-    { date: "2026-02-18", day: "Woensdag 18 februari", time: "20:59", sport: "Shorttrack", title: "Aflossing (v), finale", athletes: "mogelijk Nederland" },
-    { date: "2026-02-18", day: "Woensdag 18 februari", time: "21:29", sport: "Shorttrack", title: "500 meter (m), finale", athletes: "mogelijk Jens van 't Wout" },
+    { date: "2026-02-18", day: "Woensdag 18 februari", time: "20:15", endTime: "20:40", sport: "Shorttrack", title: "500 meter (m), kwart- en halve finales", athletes: "mogelijk Jens van 't Wout, Teun Boer, Melle van 't Wout" },
+    { date: "2026-02-18", day: "Woensdag 18 februari", time: "20:59", endTime: "21:25", sport: "Shorttrack", title: "Aflossing (v), finale", athletes: "mogelijk Nederland" },
+    { date: "2026-02-18", day: "Woensdag 18 februari", time: "21:29", endTime: "21:40", sport: "Shorttrack", title: "500 meter (m), finale", athletes: "mogelijk Jens van 't Wout, Teun Boer, Melle van 't Wout" },
 
     // Donderdag 19 februari
-    { date: "2026-02-19", day: "Donderdag 19 februari", time: "16:30", sport: "Schaatsen", title: "1500 meter (m)", athletes: "Joep Wennemars, Tijmen Snel, Kjeld Nuis" },
+    { date: "2026-02-19", day: "Donderdag 19 februari", time: "16:30", endTime: "18:20", sport: "Schaatsen", title: "1500 meter (m)", athletes: "Joep Wennemars, Tijmen Snel, Kjeld Nuis" },
 
     // Vrijdag 20 februari
-    { date: "2026-02-20", day: "Vrijdag 20 februari", time: "16:30", sport: "Schaatsen", title: "1500 meter (v)", athletes: "Marijke Groenewoud, Antoinette Rijpma-de Jong, Femke Kok" },
-    { date: "2026-02-20", day: "Vrijdag 20 februari", time: "20:15", sport: "Shorttrack", title: "1500 meter (v), kwartfinales", athletes: "Suzanne Schulting, Xandra Velzeboer" },
-    { date: "2026-02-20", day: "Vrijdag 20 februari", time: "21:00", sport: "Shorttrack", title: "1500 meter (v), halve finales", athletes: "mogelijk Suzanne Schulting, Xandra Velzeboer" },
-    { date: "2026-02-20", day: "Vrijdag 20 februari", time: "21:29", sport: "Shorttrack", title: "Aflossing (m), finale", athletes: "mogelijk Nederland" },
-    { date: "2026-02-20", day: "Vrijdag 20 februari", time: "22:03", sport: "Shorttrack", title: "1500 meter (v), finale", athletes: "mogelijk Suzanne Schulting, Xandra Velzeboer" },
+    { date: "2026-02-20", day: "Vrijdag 20 februari", time: "16:30", endTime: "18:20", sport: "Schaatsen", title: "1500 meter (v)", athletes: "Marijke Groenewoud, Antoinette Rijpma-de Jong, Femke Kok" },
+    { date: "2026-02-20", day: "Vrijdag 20 februari", time: "20:15", endTime: "20:55", sport: "Shorttrack", title: "1500 meter (v), kwartfinales", athletes: "Suzanne Schulting, Xandra Velzeboer, Selma Poutsma" },
+    { date: "2026-02-20", day: "Vrijdag 20 februari", time: "21:00", endTime: "21:25", sport: "Shorttrack", title: "1500 meter (v), halve finales", athletes: "mogelijk Suzanne Schulting, Xandra Velzeboer, Selma Poutsma" },
+    { date: "2026-02-20", day: "Vrijdag 20 februari", time: "21:29", endTime: "22:00", sport: "Shorttrack", title: "Aflossing (m), finale", athletes: "mogelijk Nederland" },
+    { date: "2026-02-20", day: "Vrijdag 20 februari", time: "22:03", endTime: "22:15", sport: "Shorttrack", title: "1500 meter (v), finale", athletes: "mogelijk Suzanne Schulting, Xandra Velzeboer, Selma Poutsma" },
 
     // Zaterdag 21 februari
-    { date: "2026-02-21", day: "Zaterdag 21 februari", time: "10:00", sport: "Bobsleeën", title: "Viermansbob (m), heat 1", athletes: "Timme Koster, Jelen Franjic, Janko Franjic, Dave Wesselink" },
-    { date: "2026-02-21", day: "Zaterdag 21 februari", time: "11:57", sport: "Bobsleeën", title: "Viermansbob (m), heat 2", athletes: "Timme Koster, Jelen Franjic, Janko Franjic, Dave Wesselink" },
-    { date: "2026-02-21", day: "Zaterdag 21 februari", time: "15:00", sport: "Schaatsen", title: "Massastart (m), halve finales", athletes: "Jorrit Bergsma, Stijn van de Bunt" },
-    { date: "2026-02-21", day: "Zaterdag 21 februari", time: "15:50", sport: "Schaatsen", title: "Massastart (v), halve finales", athletes: "Marijke Groenewoud, Bente Kerkhoff" },
-    { date: "2026-02-21", day: "Zaterdag 21 februari", time: "16:40", sport: "Schaatsen", title: "Massastart (m), finale", athletes: "mogelijk Jorrit Bergsma, Stijn van de Bunt" },
-    { date: "2026-02-21", day: "Zaterdag 21 februari", time: "17:15", sport: "Schaatsen", title: "Massastart (v), finale", athletes: "mogelijk Marijke Groenewoud, Bente Kerkhoff" },
+    { date: "2026-02-21", day: "Zaterdag 21 februari", time: "10:00", endTime: "11:55", sport: "Bobsleeën", title: "Viermansbob (m), heat 1 & 2", athletes: "Timme Koster, Jelen Franjic, Janko Franjic, Dave Wesselink (reserve: Dennis Veenstra)" },
+    { date: "2026-02-21", day: "Zaterdag 21 februari", time: "15:00", endTime: "15:45", sport: "Schaatsen", title: "Massastart (m), halve finales", athletes: "Jorrit Bergsma, Stijn van de Bunt" },
+    { date: "2026-02-21", day: "Zaterdag 21 februari", time: "15:50", endTime: "16:35", sport: "Schaatsen", title: "Massastart (v), halve finales", athletes: "Marijke Groenewoud, Bente Kerkhoff" },
+    { date: "2026-02-21", day: "Zaterdag 21 februari", time: "16:40", endTime: "17:10", sport: "Schaatsen", title: "Massastart (m), finale", athletes: "mogelijk Jorrit Bergsma, Stijn van de Bunt" },
+    { date: "2026-02-21", day: "Zaterdag 21 februari", time: "17:15", endTime: "17:45", sport: "Schaatsen", title: "Massastart (v), finale", athletes: "mogelijk Marijke Groenewoud, Bente Kerkhoff" },
 
     // Zondag 22 februari
-    { date: "2026-02-22", day: "Zondag 22 februari", time: "10:00", sport: "Bobsleeën", title: "Viermansbob (m), heat 3", athletes: "Timme Koster, Jelen Franjic, Janko Franjic, Dave Wesselink" },
-    { date: "2026-02-22", day: "Zondag 22 februari", time: "11:57", sport: "Bobsleeën", title: "Viermansbob (m), heat 4", athletes: "mogelijk Timme Koster, Jelen Franjic, Janko Franjic, Dave Wesselink" },
+    { date: "2026-02-22", day: "Zondag 22 februari", time: "10:00", endTime: "11:55", sport: "Bobsleeën", title: "Viermansbob (m), heat 3 & 4", athletes: "Timme Koster, Jelen Franjic, Janko Franjic, Dave Wesselink (reserve: Dennis Veenstra)" },
+    { date: "2026-02-22", day: "Zondag 22 februari", time: "20:00", endTime: "23:00", sport: "Ceremonie", title: "Sluitingsceremonie", athletes: "Nederland" },
 ];
 
 const sports = [...new Set(events.map(e => e.sport))].sort();
@@ -212,7 +211,8 @@ const sportClasses = {
     "Snowboarden": "tag-snowboarden",
     "Skeleton": "tag-skeleton",
     "Bobsleeën": "tag-bobsleeen",
-    "Kunstrijden": "tag-kunstrijden"
+    "Kunstrijden": "tag-kunstrijden",
+    "Ceremonie": "tag-ceremonie"
 };
 
 let activeFilters = new Set();
@@ -258,7 +258,8 @@ function initFilters() {
 function getGCalUrl(event) {
     const [h, m] = event.time.split(':');
     const start = new Date(event.date + 'T' + h.padStart(2,'0') + ':' + m.padStart(2,'0') + ':00');
-    const end = new Date(start.getTime() + DURATION_MS);
+    const [eh, em] = event.endTime.split(':');
+    const end = new Date(event.date + 'T' + eh.padStart(2,'0') + ':' + em.padStart(2,'0') + ':00');
     const fmt = d => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
     const title = `${event.sport}: ${event.title}`;
     const details = `Deelnemers: ${event.athletes}`;
@@ -270,12 +271,9 @@ function toICSDate(date, time) {
     return date.replace(/-/g, '') + 'T' + h.padStart(2,'0') + m.padStart(2,'0') + '00';
 }
 
-function toICSEndDate(date, time) {
-    const [h, m] = time.split(':');
-    const start = new Date(date + 'T' + h.padStart(2,'0') + ':' + m.padStart(2,'0') + ':00');
-    const end = new Date(start.getTime() + DURATION_MS);
-    const pad = n => String(n).padStart(2, '0');
-    return end.getFullYear() + pad(end.getMonth()+1) + pad(end.getDate()) + 'T' + pad(end.getHours()) + pad(end.getMinutes()) + '00';
+function toICSEndDate(date, endTime) {
+    const [h, m] = endTime.split(':');
+    return date.replace(/-/g, '') + 'T' + h.padStart(2,'0') + m.padStart(2,'0') + '00';
 }
 
 function escapeICS(str) {
@@ -320,7 +318,7 @@ function generateICS(indices) {
         const e = events[idx];
         const uid = `ws2026-${e.date}-${e.time.replace(':','')}-${idx}@olympical.nl`;
         const dtstart = toICSDate(e.date, e.time);
-        const dtend = toICSEndDate(e.date, e.time);
+        const dtend = toICSEndDate(e.date, e.endTime);
         const summary = escapeICS(`${e.sport}: ${e.title}`);
         const description = escapeICS(`Deelnemers: ${e.athletes}`);
 
