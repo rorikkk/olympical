@@ -48,21 +48,8 @@
         .no-results { text-align: center; padding: 40px; color: #4a5f7a; }
         .method-info { text-align: center; color: #4a6580; font-size: 0.8em; margin-bottom: 16px; padding: 10px; background: #0d1b2e; border-radius: 8px; border: 1px solid #1e2d44; line-height: 1.5; }
         .method-info strong { color: #60a5fa; }
-        .gcal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; justify-content: center; align-items: center; padding: 20px; }
-        .gcal-overlay.active { display: flex; }
-        .gcal-panel { background: #0d1b2e; border: 1px solid #1e2d44; border-radius: 12px; max-width: 600px; width: 100%; max-height: 80vh; overflow-y: auto; padding: 20px; }
-        .gcal-panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-        .gcal-panel-header h2 { font-size: 1.1em; color: #60a5fa; }
-        .gcal-close { background: none; border: 1px solid #2a3a52; border-radius: 6px; color: #7a8ba3; cursor: pointer; padding: 6px 12px; font-size: 0.85em; }
-        .gcal-close:hover { border-color: #60a5fa; color: #60a5fa; }
-        .gcal-item { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px; border-radius: 8px; margin-bottom: 4px; }
-        .gcal-item:hover { background: #131f33; }
-        .gcal-item-info { flex: 1; }
-        .gcal-item-title { font-size: 0.9em; color: #e0e6ed; }
-        .gcal-item-sub { font-size: 0.8em; color: #6b7f99; margin-top: 2px; }
-        .gcal-item-btn { flex-shrink: 0; padding: 6px 14px; border: none; border-radius: 6px; background: linear-gradient(135deg, #2563eb, #7c3aed); color: white; cursor: pointer; font-size: 0.8em; font-weight: 600; text-decoration: none; transition: opacity 0.2s; }
-        .gcal-item-btn:hover { opacity: 0.9; }
-        .gcal-item-btn.added { background: #1a3340; color: #34d399; cursor: default; }
+        .event-gcal { flex-shrink: 0; padding: 6px 12px; border: 1px solid #2a3a52; border-radius: 6px; background: transparent; color: #7a8ba3; cursor: pointer; font-size: 0.8em; transition: all 0.2s; text-decoration: none; }
+        .event-gcal:hover { border-color: #60a5fa; color: #60a5fa; }
         @media (max-width: 600px) {
             .event-card { flex-wrap: wrap; }
             .event-gcal { width: 100%; text-align: center; margin-top: 4px; }
@@ -83,28 +70,17 @@
             <span class="count-badge" id="countBadge">0 geselecteerd</span>
         </div>
         <div class="btn-group">
-            <button class="add-selected" id="openGcal" disabled>Google Agenda</button>
-            <button class="download-ics" id="downloadIcs" disabled>Download .ics</button>
+            <button class="add-selected" id="downloadIcs" disabled>Download .ics</button>
         </div>
     </div>
 
     <div class="method-info">
-        <strong>Hoe werkt het?</strong> Selecteer events met de checkboxes, kies dan:<br>
-        <strong>Google Agenda</strong> &mdash; Overzicht met toevoeg-knoppen voor Google Calendar<br>
-        <strong>Download .ics</strong> &mdash; Download als bestand voor Apple Agenda of andere apps
+        <strong>Hoe werkt het?</strong><br>
+        <strong>+ Agenda</strong> &mdash; Voegt het event direct toe aan je Google Agenda<br>
+        <strong>Download .ics</strong> &mdash; Selecteer meerdere events met de checkboxes en download ze als bestand voor je agenda-app
     </div>
 
     <div id="eventList"></div>
-</div>
-
-<div class="gcal-overlay" id="gcalOverlay">
-    <div class="gcal-panel">
-        <div class="gcal-panel-header">
-            <h2>Toevoegen aan Google Agenda</h2>
-            <button class="gcal-close" id="gcalClose">Sluiten</button>
-        </div>
-        <div id="gcalList"></div>
-    </div>
 </div>
 
 <script>
@@ -378,36 +354,9 @@ function downloadICS() {
     }
 }
 
-function openGcalPanel() {
-    const selected = [...selectedEvents].sort((a,b) => a - b);
-    if (selected.length === 0) return;
-
-    const list = document.getElementById('gcalList');
-    let html = '';
-    selected.forEach(idx => {
-        const e = events[idx];
-        const tagClass = sportClasses[e.sport] || '';
-        html += `<div class="gcal-item">
-            <div class="gcal-item-info">
-                <div class="gcal-item-title"><span class="sport-tag ${tagClass}">${e.sport}</span> ${e.title}</div>
-                <div class="gcal-item-sub">${e.day} ${e.time} &mdash; ${e.athletes}</div>
-            </div>
-            <a class="gcal-item-btn" href="${getGCalUrl(e)}" target="_blank" onclick="this.classList.add('added'); this.textContent='Toegevoegd'">Toevoegen</a>
-        </div>`;
-    });
-    list.innerHTML = html;
-    document.getElementById('gcalOverlay').classList.add('active');
-}
-
-function closeGcalPanel() {
-    document.getElementById('gcalOverlay').classList.remove('active');
-}
-
 function updateCount() {
     document.getElementById('countBadge').textContent = `${selectedEvents.size} geselecteerd`;
-    const disabled = selectedEvents.size === 0;
-    document.getElementById('downloadIcs').disabled = disabled;
-    document.getElementById('openGcal').disabled = disabled;
+    document.getElementById('downloadIcs').disabled = selectedEvents.size === 0;
 }
 
 function renderEvents() {
@@ -440,6 +389,7 @@ function renderEvents() {
                         <div class="event-title"><span class="sport-tag ${tagClass}">${e.sport}</span> ${e.title}</div>
                         <div class="event-athletes">${e.athletes}</div>
                     </div>
+                    <a class="event-gcal" href="${getGCalUrl(e)}" target="_blank" onclick="event.stopPropagation()">+ Agenda</a>
                 </div>`;
         });
         html += '</div>';
@@ -474,11 +424,6 @@ document.getElementById('selectAll').addEventListener('change', function() {
 });
 
 document.getElementById('downloadIcs').addEventListener('click', downloadICS);
-document.getElementById('openGcal').addEventListener('click', openGcalPanel);
-document.getElementById('gcalClose').addEventListener('click', closeGcalPanel);
-document.getElementById('gcalOverlay').addEventListener('click', function(e) {
-    if (e.target === this) closeGcalPanel();
-});
 
 initFilters();
 renderEvents();
