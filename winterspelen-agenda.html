@@ -75,10 +75,15 @@
         </div>
     </div>
 
-    <div class="method-info">
+    <div class="method-info" id="methodDesktop">
         <strong>Hoe werkt het?</strong><br>
         <strong>+ Agenda</strong> &mdash; Voegt het event direct toe aan je Google Agenda<br>
         <strong>Download .ics</strong> &mdash; Selecteer meerdere events met de checkboxes en download ze als bestand. Importeer via <a href="https://calendar.google.com/calendar/r/settings/export" target="_blank" style="color:#60a5fa;">Google Agenda &rarr; Instellingen &rarr; Importeren</a> of open het bestand voor Apple Agenda
+    </div>
+    <div class="method-info" id="methodMobile" style="display:none;">
+        <strong>Hoe werkt het?</strong><br>
+        <strong>+ Agenda</strong> &mdash; Voegt het event direct toe aan je Google Agenda<br>
+        <strong>Download .ics</strong> &mdash; Selecteer meerdere events met de checkboxes en download ze als bestand. Open het bestand en voeg de events toe!
     </div>
 
     <div id="eventList"></div>
@@ -435,6 +440,12 @@ document.getElementById('downloadIcs').addEventListener('click', downloadICS);
 
 initFilters();
 renderEvents();
+
+const isMobileDevice = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+if (isMobileDevice) {
+    document.getElementById('methodDesktop').style.display = 'none';
+    document.getElementById('methodMobile').style.display = '';
+}
 
 const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 if (isIOS) {
