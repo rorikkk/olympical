@@ -270,11 +270,15 @@ function escapeICS(str) {
 }
 
 function generateICS(indices) {
-    let ics = `BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Winterspelen 2026//NL\r\nCALSCALE:GREGORIAN\r\nMETHOD:PUBLISH\r\nX-WR-CALNAME:Winterspelen 2026 NL\r\nX-WR-TIMEZONE:Europe/Amsterdam\r\n`;
+    const now = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    const dtstamp = now.getUTCFullYear() + pad(now.getUTCMonth()+1) + pad(now.getUTCDate()) + 'T' + pad(now.getUTCHours()) + pad(now.getUTCMinutes()) + pad(now.getUTCSeconds()) + 'Z';
+
+    let ics = `BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Winterspelen 2026//NL\r\nCALSCALE:GREGORIAN\r\nMETHOD:PUBLISH\r\nX-WR-CALNAME:Winterspelen 2026 NL\r\nX-WR-TIMEZONE:Europe/Amsterdam\r\nBEGIN:VTIMEZONE\r\nTZID:Europe/Amsterdam\r\nBEGIN:STANDARD\r\nDTSTART:19701025T030000\r\nRRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=10\r\nTZOFFSETFROM:+0200\r\nTZOFFSETTO:+0100\r\nTZNAME:CET\r\nEND:STANDARD\r\nBEGIN:DAYLIGHT\r\nDTSTART:19700329T020000\r\nRRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=3\r\nTZOFFSETFROM:+0100\r\nTZOFFSETTO:+0200\r\nTZNAME:CEST\r\nEND:DAYLIGHT\r\nEND:VTIMEZONE\r\n`;
 
     indices.forEach(idx => {
         const e = events[idx];
-        const uid = `ws2026-${e.date}-${e.time.replace(':','')}-${idx}@winterspelen`;
+        const uid = `ws2026-${e.date}-${e.time.replace(':','')}-${idx}@olympical.nl`;
         const dtstart = toICSDate(e.date, e.time);
         const dtend = toICSEndDate(e.date, e.time);
         const summary = `${e.sport}: ${e.title}`;
@@ -282,11 +286,13 @@ function generateICS(indices) {
 
         ics += `BEGIN:VEVENT\r\n`;
         ics += `UID:${uid}\r\n`;
+        ics += `DTSTAMP:${dtstamp}\r\n`;
         ics += `DTSTART;TZID=Europe/Amsterdam:${dtstart}\r\n`;
         ics += `DTEND;TZID=Europe/Amsterdam:${dtend}\r\n`;
         ics += `SUMMARY:${escapeICS(summary)}\r\n`;
         ics += `DESCRIPTION:${escapeICS(description)}\r\n`;
         ics += `LOCATION:Milano Cortina\\, Italië\r\n`;
+        ics += `STATUS:CONFIRMED\r\n`;
         ics += `END:VEVENT\r\n`;
     });
 
