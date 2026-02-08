@@ -46,8 +46,12 @@
         .tag-kunstrijden { background: #1a3d3d; color: #67e8f9; }
         .hidden { display: none; }
         .no-results { text-align: center; padding: 40px; color: #4a5f7a; }
+        #eventList { padding-bottom: 70px; }
         .method-info { text-align: center; color: #4a6580; font-size: 0.8em; margin-bottom: 16px; padding: 10px; background: #0d1b2e; border-radius: 8px; border: 1px solid #1e2d44; line-height: 1.5; }
         .method-info strong { color: #60a5fa; }
+        .floating-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #0d1b2e; border-top: 1px solid #1e2d44; padding: 12px 20px; display: flex; justify-content: center; align-items: center; gap: 12px; z-index: 50; transform: translateY(100%); transition: transform 0.3s ease; }
+        .floating-bar.visible { transform: translateY(0); }
+        .floating-bar .count-badge { background: #1e3a5f; color: #60a5fa; padding: 4px 10px; border-radius: 10px; font-size: 0.85em; }
         .event-gcal { flex-shrink: 0; padding: 6px 12px; border: 1px solid #2a3a52; border-radius: 6px; background: transparent; color: #7a8ba3; cursor: pointer; font-size: 0.8em; transition: all 0.2s; text-decoration: none; }
         .event-gcal:hover { border-color: #60a5fa; color: #60a5fa; }
         @media (max-width: 600px) {
@@ -69,9 +73,6 @@
             <label for="selectAll">Alles selecteren</label>
             <span class="count-badge" id="countBadge">0 geselecteerd</span>
         </div>
-        <div class="btn-group">
-            <button class="add-selected" id="downloadIcs" disabled>Download .ics</button>
-        </div>
     </div>
 
     <div class="method-info">
@@ -81,6 +82,11 @@
     </div>
 
     <div id="eventList"></div>
+</div>
+
+<div class="floating-bar" id="floatingBar">
+    <span class="count-badge" id="floatingCount">0 geselecteerd</span>
+    <button class="add-selected" id="downloadIcs">Download .ics</button>
 </div>
 
 <script>
@@ -355,8 +361,10 @@ function downloadICS() {
 }
 
 function updateCount() {
-    document.getElementById('countBadge').textContent = `${selectedEvents.size} geselecteerd`;
-    document.getElementById('downloadIcs').disabled = selectedEvents.size === 0;
+    const count = selectedEvents.size;
+    document.getElementById('countBadge').textContent = `${count} geselecteerd`;
+    document.getElementById('floatingCount').textContent = `${count} geselecteerd`;
+    document.getElementById('floatingBar').classList.toggle('visible', count > 0);
 }
 
 function renderEvents() {
