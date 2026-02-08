@@ -78,7 +78,7 @@
     <div class="method-info">
         <strong>Hoe werkt het?</strong><br>
         <strong>+ Agenda</strong> &mdash; Voegt het event direct toe aan je Google Agenda<br>
-        <strong>Download .ics</strong> &mdash; Selecteer meerdere events met de checkboxes en download ze als bestand voor je agenda-app
+        <strong>Download .ics</strong> &mdash; Selecteer meerdere events met de checkboxes en download ze als bestand. Importeer via <a href="https://calendar.google.com/calendar/r/settings/export" target="_blank" style="color:#60a5fa;">Google Agenda &rarr; Instellingen &rarr; Importeren</a> of open het bestand voor Apple Agenda
     </div>
 
     <div id="eventList"></div>
@@ -440,8 +440,8 @@ if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
     const overlay = document.createElement('div');
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;display:flex;justify-content:center;align-items:center;padding:20px;';
     overlay.innerHTML = '<div style="background:#0d1b2e;border:1px solid #1e2d44;border-radius:12px;padding:24px;max-width:400px;width:100%;text-align:center;">' +
-        '<h3 style="color:#60a5fa;margin-bottom:12px;font-size:1.1em;">Niet beschikbaar op iOS</h3>' +
-        '<p style="color:#94a3b8;font-size:0.9em;line-height:1.5;margin-bottom:20px;">Olympical is niet volledig compatible met iOS. We raden aan om Olympical op je desktop te gebruiken.</p>' +
+        '<h3 style="color:#60a5fa;margin-bottom:12px;font-size:1.1em;">iOS werkt beperkt</h3>' +
+        '<p style="color:#94a3b8;font-size:0.9em;line-height:1.5;margin-bottom:20px;">Momenteel werkt Olympical op iOS alleen in Safari in combinatie met Apple Calendar. We raden je aan Olympical op je desktop te gebruiken.</p>' +
         '<button style="padding:8px 24px;border:none;border-radius:8px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:white;cursor:pointer;font-size:0.9em;font-weight:600;" onclick="this.closest(\'div[style*=fixed]\').remove()">Begrepen</button></div>';
     document.body.appendChild(overlay);
 }
