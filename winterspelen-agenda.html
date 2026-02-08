@@ -436,7 +436,8 @@ document.getElementById('downloadIcs').addEventListener('click', downloadICS);
 initFilters();
 renderEvents();
 
-if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+if (isIOS) {
     const overlay = document.createElement('div');
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;display:flex;justify-content:center;align-items:center;padding:20px;';
     overlay.innerHTML = '<div style="background:#0d1b2e;border:1px solid #1e2d44;border-radius:12px;padding:24px;max-width:400px;width:100%;text-align:center;">' +
