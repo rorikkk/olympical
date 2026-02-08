@@ -269,34 +269,80 @@ function escapeICS(str) {
     return str.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
 }
 
+function foldICSLine(line) {
+    const encoder = new TextEncoder();
+    const bytes = encoder.encode(line);
+    if (bytes.length <= 75) return line + '\r\n';
+    let result = '';
+    let pos = 0;
+    let first = true;
+    while (pos < bytes.length) {
+        const max = first ? 75 : 74;
+        let end = Math.min(pos + max, bytes.length);
+        while (end > pos && (bytes[end] & 0xC0) === 0x80) end--;
+        const chunk = new TextDecoder().decode(bytes.slice(pos, end));
+        result += (first ? '' : ' ') + chunk + '\r\n';
+        pos = end;
+        first = false;
+    }
+    return result;
+}
+
+function icsLine(line) {
+    return foldICSLine(line);
+}
+
 function generateICS(indices) {
     const now = new Date();
     const pad = n => String(n).padStart(2, '0');
     const dtstamp = now.getUTCFullYear() + pad(now.getUTCMonth()+1) + pad(now.getUTCDate()) + 'T' + pad(now.getUTCHours()) + pad(now.getUTCMinutes()) + pad(now.getUTCSeconds()) + 'Z';
 
-    let ics = `BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Winterspelen 2026//NL\r\nCALSCALE:GREGORIAN\r\nMETHOD:PUBLISH\r\nX-WR-CALNAME:Winterspelen 2026 NL\r\nX-WR-TIMEZONE:Europe/Amsterdam\r\nBEGIN:VTIMEZONE\r\nTZID:Europe/Amsterdam\r\nBEGIN:STANDARD\r\nDTSTART:19701025T030000\r\nRRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=10\r\nTZOFFSETFROM:+0200\r\nTZOFFSETTO:+0100\r\nTZNAME:CET\r\nEND:STANDARD\r\nBEGIN:DAYLIGHT\r\nDTSTART:19700329T020000\r\nRRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=3\r\nTZOFFSETFROM:+0100\r\nTZOFFSETTO:+0200\r\nTZNAME:CEST\r\nEND:DAYLIGHT\r\nEND:VTIMEZONE\r\n`;
+    let ics = '';
+    ics += icsLine('BEGIN:VCALENDAR');
+    ics += icsLine('VERSION:2.0');
+    ics += icsLine('PRODID:-//Winterspelen 2026//NL');
+    ics += icsLine('CALSCALE:GREGORIAN');
+    ics += icsLine('X-WR-CALNAME:Winterspelen 2026 NL');
+    ics += icsLine('X-WR-TIMEZONE:Europe/Amsterdam');
+    ics += icsLine('BEGIN:VTIMEZONE');
+    ics += icsLine('TZID:Europe/Amsterdam');
+    ics += icsLine('BEGIN:STANDARD');
+    ics += icsLine('DTSTART:19701025T030000');
+    ics += icsLine('RRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=10');
+    ics += icsLine('TZOFFSETFROM:+0200');
+    ics += icsLine('TZOFFSETTO:+0100');
+    ics += icsLine('TZNAME:CET');
+    ics += icsLine('END:STANDARD');
+    ics += icsLine('BEGIN:DAYLIGHT');
+    ics += icsLine('DTSTART:19700329T020000');
+    ics += icsLine('RRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=3');
+    ics += icsLine('TZOFFSETFROM:+0100');
+    ics += icsLine('TZOFFSETTO:+0200');
+    ics += icsLine('TZNAME:CEST');
+    ics += icsLine('END:DAYLIGHT');
+    ics += icsLine('END:VTIMEZONE');
 
     indices.forEach(idx => {
         const e = events[idx];
         const uid = `ws2026-${e.date}-${e.time.replace(':','')}-${idx}@olympical.nl`;
         const dtstart = toICSDate(e.date, e.time);
         const dtend = toICSEndDate(e.date, e.time);
-        const summary = `${e.sport}: ${e.title}`;
-        const description = `Deelnemers: ${e.athletes}`;
+        const summary = escapeICS(`${e.sport}: ${e.title}`);
+        const description = escapeICS(`Deelnemers: ${e.athletes}`);
 
-        ics += `BEGIN:VEVENT\r\n`;
-        ics += `UID:${uid}\r\n`;
-        ics += `DTSTAMP:${dtstamp}\r\n`;
-        ics += `DTSTART;TZID=Europe/Amsterdam:${dtstart}\r\n`;
-        ics += `DTEND;TZID=Europe/Amsterdam:${dtend}\r\n`;
-        ics += `SUMMARY:${escapeICS(summary)}\r\n`;
-        ics += `DESCRIPTION:${escapeICS(description)}\r\n`;
-        ics += `LOCATION:Milano Cortina\\, Italië\r\n`;
-        ics += `STATUS:CONFIRMED\r\n`;
-        ics += `END:VEVENT\r\n`;
+        ics += icsLine('BEGIN:VEVENT');
+        ics += icsLine(`UID:${uid}`);
+        ics += icsLine(`DTSTAMP:${dtstamp}`);
+        ics += icsLine(`DTSTART;TZID=Europe/Amsterdam:${dtstart}`);
+        ics += icsLine(`DTEND;TZID=Europe/Amsterdam:${dtend}`);
+        ics += icsLine(`SUMMARY:${summary}`);
+        ics += icsLine(`DESCRIPTION:${description}`);
+        ics += icsLine(`LOCATION:${escapeICS('Milano Cortina, Italië')}`);
+        ics += icsLine('STATUS:CONFIRMED');
+        ics += icsLine('END:VEVENT');
     });
 
-    ics += `END:VCALENDAR\r\n`;
+    ics += icsLine('END:VCALENDAR');
     return ics;
 }
 
