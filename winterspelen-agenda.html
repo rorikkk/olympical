@@ -441,7 +441,7 @@ if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;display:flex;justify-content:center;align-items:center;padding:20px;';
     overlay.innerHTML = '<div style="background:#0d1b2e;border:1px solid #1e2d44;border-radius:12px;padding:24px;max-width:400px;width:100%;text-align:center;">' +
         '<h3 style="color:#60a5fa;margin-bottom:12px;font-size:1.1em;">iOS werkt beperkt</h3>' +
-        '<p style="color:#94a3b8;font-size:0.9em;line-height:1.5;margin-bottom:20px;">Momenteel werkt Olympical op iOS alleen in Safari in combinatie met Apple Calendar. We raden je aan Olympical op je desktop te gebruiken.</p>' +
+        '<p style="color:#94a3b8;font-size:0.9em;line-height:1.5;margin-bottom:20px;">Meerdere events tegelijk toevoegen is op iOS alleen compatible met Apple Calendar. Events toevoegen aan Google Calendar kan wel per event met de + Agenda knop. Gebruik Olympical op je desktop om meerdere events in één keer toe te voegen.</p>' +
         '<button style="padding:8px 24px;border:none;border-radius:8px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:white;cursor:pointer;font-size:0.9em;font-weight:600;" onclick="this.closest(\'div[style*=fixed]\').remove()">Begrepen</button></div>';
     document.body.appendChild(overlay);
 }
