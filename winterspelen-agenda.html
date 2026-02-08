@@ -269,27 +269,8 @@ function escapeICS(str) {
     return str.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
 }
 
-function foldICSLine(line) {
-    const encoder = new TextEncoder();
-    const bytes = encoder.encode(line);
-    if (bytes.length <= 75) return line + '\r\n';
-    let result = '';
-    let pos = 0;
-    let first = true;
-    while (pos < bytes.length) {
-        const max = first ? 75 : 74;
-        let end = Math.min(pos + max, bytes.length);
-        while (end > pos && (bytes[end] & 0xC0) === 0x80) end--;
-        const chunk = new TextDecoder().decode(bytes.slice(pos, end));
-        result += (first ? '' : ' ') + chunk + '\r\n';
-        pos = end;
-        first = false;
-    }
-    return result;
-}
-
 function icsLine(line) {
-    return foldICSLine(line);
+    return line + '\r\n';
 }
 
 function generateICS(indices) {
