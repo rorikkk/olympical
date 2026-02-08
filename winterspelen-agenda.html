@@ -345,24 +345,15 @@ function downloadICS() {
     if (selected.length === 0) return;
 
     const icsContent = generateICS(selected);
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-    if (isMobile) {
-        const blob = new Blob([icsContent], { type: 'text/calendar' });
-        const url = URL.createObjectURL(blob);
-        window.location.href = url;
-        setTimeout(() => URL.revokeObjectURL(url), 5000);
-    } else {
-        const blob = new Blob([icsContent], { type: 'text/calendar' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'winterspelen-2026.ics';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    }
+    const blob = new Blob([icsContent], { type: 'text/calendar' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'Winterspelen 2026.ics';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
 }
 
 function updateCount() {
@@ -454,7 +445,10 @@ if (isIOS) {
     overlay.innerHTML = '<div style="background:#0d1b2e;border:1px solid #1e2d44;border-radius:12px;padding:24px;max-width:400px;width:100%;text-align:center;">' +
         '<h3 style="color:#60a5fa;margin-bottom:12px;font-size:1.1em;">iOS werkt beperkt</h3>' +
         '<p style="color:#94a3b8;font-size:0.9em;line-height:1.5;margin-bottom:20px;">Meerdere events tegelijk toevoegen is op iOS alleen compatible met Apple Calendar. Events toevoegen aan Google Calendar kan wel per event met de + Agenda knop. Gebruik Olympical op je desktop om meerdere events in één keer toe te voegen.</p>' +
-        '<button style="padding:8px 24px;border:none;border-radius:8px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:white;cursor:pointer;font-size:0.9em;font-weight:600;" onclick="this.closest(\'div[style*=fixed]\').remove()">Begrepen</button></div>';
+        ((/CriOS/i.test(navigator.userAgent))
+            ? '<button style="padding:8px 24px;border:none;border-radius:8px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:white;cursor:pointer;font-size:0.9em;font-weight:600;" onclick="navigator.clipboard.writeText(window.location.href);this.textContent=\'Link gekopieerd! Plak in Safari\'">Kopieer link voor Safari</button>'
+            : '<button style="padding:8px 24px;border:none;border-radius:8px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:white;cursor:pointer;font-size:0.9em;font-weight:600;" onclick="this.closest(\'div[style*=fixed]\').remove()">Begrepen</button>')
+        + '</div>';
     document.body.appendChild(overlay);
 }
 </script>
