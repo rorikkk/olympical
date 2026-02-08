@@ -437,10 +437,13 @@ initFilters();
 renderEvents();
 
 if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-    const banner = document.createElement('div');
-    banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#1a2744;border-bottom:1px solid #2a3a52;padding:12px 20px;display:flex;justify-content:space-between;align-items:center;z-index:100;font-size:0.85em;color:#94a3b8;';
-    banner.innerHTML = '<span>Olympical is niet volledig compatible met iOS. We raden aan om Olympical op je desktop te gebruiken.</span><button style="background:none;border:1px solid #2a3a52;border-radius:6px;color:#7a8ba3;cursor:pointer;padding:4px 10px;margin-left:12px;flex-shrink:0" onclick="this.parentElement.remove()">Sluiten</button>';
-    document.body.prepend(banner);
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;display:flex;justify-content:center;align-items:center;padding:20px;';
+    overlay.innerHTML = '<div style="background:#0d1b2e;border:1px solid #1e2d44;border-radius:12px;padding:24px;max-width:400px;width:100%;text-align:center;">' +
+        '<h3 style="color:#60a5fa;margin-bottom:12px;font-size:1.1em;">Niet beschikbaar op iOS</h3>' +
+        '<p style="color:#94a3b8;font-size:0.9em;line-height:1.5;margin-bottom:20px;">Olympical is niet volledig compatible met iOS. We raden aan om Olympical op je desktop te gebruiken.</p>' +
+        '<button style="padding:8px 24px;border:none;border-radius:8px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:white;cursor:pointer;font-size:0.9em;font-weight:600;" onclick="this.closest(\'div[style*=fixed]\').remove()">Begrepen</button></div>';
+    document.body.appendChild(overlay);
 }
 </script>
 </body>
