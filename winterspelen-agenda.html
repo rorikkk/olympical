@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self'; connect-src 'none';">
     <title>Winterspelen 2026 - Google Agenda Tool</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -277,6 +278,12 @@ function escapeICS(str) {
     return str.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
 }
 
+function escapeHTML(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
 function icsLine(line) {
     return line + '\r\n';
 }
@@ -385,19 +392,20 @@ function renderEvents() {
 
     let html = '';
     for (const [day, dayEvents] of Object.entries(grouped)) {
-        html += `<div class="day-group"><div class="day-header">${day}</div>`;
+        html += `<div class="day-group"><div class="day-header">${escapeHTML(day)}</div>`;
         dayEvents.forEach(e => {
             const checked = selectedEvents.has(e.idx) ? 'checked' : '';
             const tagClass = sportClasses[e.sport] || '';
+            const safeIdx = Number(e.idx);
             html += `
-                <div class="event-card" onclick="toggleEvent(${e.idx}, event)">
-                    <input type="checkbox" ${checked} data-idx="${e.idx}" onclick="event.stopPropagation(); toggleEvent(${e.idx}, event)">
-                    <span class="event-time">${e.time}</span>
+                <div class="event-card" onclick="toggleEvent(${safeIdx}, event)">
+                    <input type="checkbox" ${checked} data-idx="${safeIdx}" onclick="event.stopPropagation(); toggleEvent(${safeIdx}, event)">
+                    <span class="event-time">${escapeHTML(e.time)}</span>
                     <div class="event-details">
-                        <div class="event-title"><span class="sport-tag ${tagClass}">${e.sport}</span> ${e.title}</div>
-                        <div class="event-athletes">${e.athletes}</div>
+                        <div class="event-title"><span class="sport-tag ${escapeHTML(tagClass)}">${escapeHTML(e.sport)}</span> ${escapeHTML(e.title)}</div>
+                        <div class="event-athletes">${escapeHTML(e.athletes)}</div>
                     </div>
-                    <a class="event-gcal" href="${getGCalUrl(e)}" target="_blank" onclick="event.stopPropagation()">+ Agenda</a>
+                    <a class="event-gcal" href="${escapeHTML(getGCalUrl(e))}" target="_blank" onclick="event.stopPropagation()">+ Agenda</a>
                 </div>`;
         });
         html += '</div>';
@@ -413,7 +421,7 @@ function toggleEvent(idx, evt) {
     } else {
         selectedEvents.add(idx);
     }
-    const cb = document.querySelector(`input[data-idx="${idx}"]`);
+    const cb = document.querySelector(`input[data-idx="${Number(idx)}"]`);
     if (cb) cb.checked = selectedEvents.has(idx);
     updateCount();
 }
