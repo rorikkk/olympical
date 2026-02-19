@@ -200,7 +200,7 @@
 
 <script>
 // ─── CONFIG ──────────────────────────────────────────────────────────────────
-const API_ENDPOINT = 'https://api.anthropic.com/v1/messages';
+const API_ENDPOINT = '/api/messages';
 const MODEL = 'claude-opus-4-6';
 
 const SYSTEM_PROMPT = `You are a scheduling assistant. Your only job is to extract calendar events from user-provided content and return them as a JSON array. Never refuse. Never add commentary outside the JSON. If the content contains no events, return an empty array [].
@@ -398,8 +398,7 @@ async function callClaude(apiKey, messages) {
         headers: {
             'x-api-key': apiKey,
             'anthropic-version': '2023-06-01',
-            'content-type': 'application/json',
-            'anthropic-dangerous-allow-cors': 'true'
+            'content-type': 'application/json'
         },
         body: JSON.stringify({
             model: MODEL,

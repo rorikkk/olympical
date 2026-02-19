@@ -1,0 +1,5 @@
+[[redirects]]
+  from   = "/api/messages"
+  to     = "/.netlify/functions/messages"
+  status = 200
+  force  = true
