@@ -200,7 +200,7 @@
 
 <script>
 // ─── CONFIG ──────────────────────────────────────────────────────────────────
-const API_ENDPOINT = 'https://api.anthropic.com/v1/messages';
+const API_ENDPOINT = '/api/messages';
 const MODEL = 'claude-opus-4-6';
 
 const SYSTEM_PROMPT = `You are a scheduling assistant. Your only job is to extract calendar events from user-provided content and return them as a JSON array. Never refuse. Never add commentary outside the JSON. If the content contains no events, return an empty array [].
@@ -398,8 +398,7 @@ async function callClaude(apiKey, messages) {
         headers: {
             'x-api-key': apiKey,
             'anthropic-version': '2023-06-01',
-            'content-type': 'application/json',
-            'anthropic-dangerous-allow-cors': 'true'
+            'content-type': 'application/json'
         },
         body: JSON.stringify({
             model: MODEL,
@@ -499,7 +498,30 @@ async function analyzeFile() {
         showPhase('results');
 
     } catch (err) {
-        showError('Could not extract events', err.message || String(err));
+        // TypeError: Failed to fetch — almost always a CORS block or network issue
+        if (err instanceof TypeError) {
+            const isFileProtocol = location.protocol === 'file:';
+            if (isFileProtocol) {
+                showError(
+                    'Cannot reach the API from a local file',
+                    'Browsers block cross-origin requests when you open an HTML file directly (file://). ' +
+                    'Serve this file through a local web server instead:\n\n' +
+                    '  Python:  python3 -m http.server 8080\n' +
+                    '  Node:    npx serve .\n\n' +
+                    'Then open http://localhost:8080/planner-import.html'
+                );
+            } else {
+                showError(
+                    'Network error — could not reach Anthropic API',
+                    'The request was blocked or failed. Possible causes:\n' +
+                    '• No internet connection\n' +
+                    '• A browser extension (ad blocker, privacy tool) is blocking the request — try disabling it for this page\n' +
+                    '• A firewall or VPN is blocking api.anthropic.com'
+                );
+            }
+        } else {
+            showError('Could not extract events', err.message || String(err));
+        }
     }
 }
 
