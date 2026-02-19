@@ -103,6 +103,11 @@
     </style>
 </head>
 <body>
+<div id="serverBanner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:#c0392b;color:#fff;padding:12px 20px;font-family:monospace;font-size:13px;line-height:1.5;white-space:pre-wrap;">⚠ node server.js is not running.  Open a terminal in the project folder and run:
+
+  node server.js
+
+Then open  http://localhost:8080/planner-import.html  (not file:// and not npx serve)</div>
 <div class="container">
     <h1>Planner Import</h1>
     <p class="subtitle">Upload any schedule &mdash; Claude extracts your events</p>
@@ -812,6 +817,16 @@ document.getElementById('importAnother').addEventListener('click', () => {
 
 // Start on upload phase
 showPhase('upload');
+
+// ── Health check: warn immediately if node server.js is not running ───────────
+(async () => {
+    try {
+        const r = await fetch('/health');
+        if (!r.ok) throw new Error();
+    } catch {
+        document.getElementById('serverBanner').style.display = 'block';
+    }
+})();
 </script>
 </body>
 </html>

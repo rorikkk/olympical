@@ -25,6 +25,13 @@ const MIME = {
 
 http.createServer((req, res) => {
 
+    // ── Health check (used by page to detect if server is running) ────────────
+    if (req.method === 'GET' && req.url === '/health') {
+        res.writeHead(200, { 'content-type': 'application/json' });
+        res.end(JSON.stringify({ ok: true }));
+        return;
+    }
+
     // ── API proxy ────────────────────────────────────────────────────────────
     if (req.method === 'POST' && req.url === '/api/messages') {
         let body = '';
@@ -81,6 +88,6 @@ http.createServer((req, res) => {
         res.end('Not found');
     }
 
-}).listen(PORT, '127.0.0.1', () => {
+}).listen(PORT, () => {
     console.log(`\n  Planner Import  →  http://localhost:${PORT}/planner-import.html\n`);
 });
