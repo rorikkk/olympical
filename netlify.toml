@@ -3,3 +3,8 @@
   to     = "/.netlify/functions/messages"
   status = 200
   force  = true
+
+[[redirects]]
+  from   = "/"
+  to     = "/wk-voetbal-agenda.html"
+  status = 302
