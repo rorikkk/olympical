@@ -722,7 +722,7 @@ document.getElementById('selectAll').addEventListener('change', function() {
 document.getElementById('downloadIcs').addEventListener('click', downloadICS);
 
 initFilters();
-renderEvents();
+selectCountry('Nederland');
 
 const isMobileDevice = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 if (isMobileDevice) {
