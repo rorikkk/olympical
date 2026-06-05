@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self'; connect-src 'none';">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚽</text></svg>">
     <title>WK Voetbal 2026 - Google Agenda Tool</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -19,6 +18,7 @@
         .filter-btn.active { background: #1a3d2e; border-color: #34d399; color: #34d399; }
         .filter-btn.all { background: #1a2744; border-color: #4a6fa5; color: #8ab4f8; }
         .filter-btn.all.active { background: #1a3d2e; border-color: #34d399; color: #34d399; }
+        .filter-btn.grp { padding: 6px 12px; font-size: 0.8em; min-width: 36px; text-align: center; }
         .country-filter { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; justify-content: center; align-items: center; }
         .country-btn { padding: 8px 16px; border: 1px solid #2a3a52; border-radius: 20px; background: #131f33; color: #94a3b8; cursor: pointer; font-size: 0.85em; transition: all 0.2s; }
         .country-btn:hover { border-color: #fb923c; color: #fb923c; }
@@ -71,11 +71,9 @@
         .event-gcal { flex-shrink: 0; padding: 6px 12px; border: 1px solid #2a3a52; border-radius: 6px; background: transparent; color: #7a8ba3; cursor: pointer; font-size: 0.8em; transition: all 0.2s; text-decoration: none; }
         .event-gcal:hover { border-color: #34d399; color: #34d399; }
         .hidden { display: none; }
-        .section-title { font-size: 1.3em; font-weight: 800; color: #e0e6ed; text-align: center; padding: 20px 0 12px; margin-top: 8px; letter-spacing: 0.5px; }
-        .section-title:first-child { margin-top: 0; padding-top: 0; }
         .no-results { text-align: center; padding: 40px; color: #4a5f7a; }
         #eventList { padding-bottom: 70px; }
-        .method-info { text-align: center; color: #94a3b8; font-size: 0.8em; margin-bottom: 16px; padding: 10px; background: #0d1b2e; border-radius: 8px; border: 1px solid #1e2d44; line-height: 1.5; }
+        .method-info { text-align: center; color: #4a6580; font-size: 0.8em; margin-bottom: 16px; padding: 10px; background: #0d1b2e; border-radius: 8px; border: 1px solid #1e2d44; line-height: 1.5; }
         .method-info strong { color: #34d399; }
         .floating-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #0d1b2e; border-top: 1px solid #1e2d44; padding: 12px 20px; display: flex; justify-content: center; align-items: center; gap: 12px; z-index: 50; transform: translateY(100%); transition: transform 0.3s ease; }
         .floating-bar.visible { transform: translateY(0); }
@@ -87,6 +85,7 @@
             .event-card { flex-wrap: wrap; }
             .event-gcal { width: 100%; text-align: center; margin-top: 4px; }
             .filter-btn { padding: 6px 10px; font-size: 0.8em; }
+            .filter-btn.grp { padding: 5px 8px; font-size: 0.75em; min-width: 30px; }
         }
     </style>
 </head>
@@ -98,13 +97,16 @@
     <div class="filter-label">Fase</div>
     <div class="filters" id="phaseFilters"></div>
 
+    <div class="filter-label">Groep</div>
+    <div class="filters" id="groupFilters"></div>
+
     <div class="filter-label">Land</div>
     <div class="country-filter" id="countryFilter"></div>
 
     <div class="actions-bar">
         <div class="select-all-wrap">
             <input type="checkbox" id="selectAll">
-            <label for="selectAll">Groepsfase selecteren</label>
+            <label for="selectAll">Alles selecteren</label>
             <span class="count-badge" id="countBadge">0 geselecteerd</span>
         </div>
     </div>
@@ -387,6 +389,7 @@ function getKnockoutPaths(group) {
 }
 
 let activePhaseFilters = new Set();
+let activeGroupFilters = new Set();
 let selectedCountry = null;
 let showThirdPaths = false;
 let selectedEvents = new Set();
@@ -416,6 +419,32 @@ function initFilters() {
             renderEvents();
         };
         phaseC.appendChild(btn);
+    });
+
+    const groupC = document.getElementById('groupFilters');
+    const allGroupBtn = document.createElement('button');
+    allGroupBtn.className = 'filter-btn grp all active';
+    allGroupBtn.textContent = 'Alle';
+    allGroupBtn.onclick = () => {
+        activeGroupFilters.clear();
+        groupC.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        allGroupBtn.classList.add('active');
+        renderEvents();
+    };
+    groupC.appendChild(allGroupBtn);
+    GROUPS.forEach(g => {
+        const btn = document.createElement('button');
+        btn.className = 'filter-btn grp';
+        btn.textContent = g;
+        btn.onclick = () => {
+            if (activeGroupFilters.has(g)) activeGroupFilters.delete(g);
+            else activeGroupFilters.add(g);
+            groupC.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            if (activeGroupFilters.size === 0) allGroupBtn.classList.add('active');
+            else activeGroupFilters.forEach(gr => [...groupC.children].find(b => b.textContent === gr)?.classList.add('active'));
+            renderEvents();
+        };
+        groupC.appendChild(btn);
     });
 
     const countryC = document.getElementById('countryFilter');
@@ -596,6 +625,9 @@ function renderEvents() {
     if (activePhaseFilters.size > 0) {
         filtered = filtered.filter(e => activePhaseFilters.has(e.phase));
     }
+    if (activeGroupFilters.size > 0) {
+        filtered = filtered.filter(e => e.group && activeGroupFilters.has(e.group));
+    }
     if (selectedCountry && paths) {
         filtered = filtered.filter(e => {
             if (e.phase === 'Groepsfase') {
@@ -622,14 +654,7 @@ function renderEvents() {
     });
 
     let html = '';
-    let currentSection = null;
     for (const [day, dayEvents] of Object.entries(grouped)) {
-        const firstPhase = dayEvents[0].phase;
-        const section = firstPhase === 'Groepsfase' ? 'Groepsfase' : 'Finales';
-        if (section !== currentSection) {
-            html += '<div class="section-title">' + section + '</div>';
-            currentSection = section;
-        }
         html += '<div class="day-group"><div class="day-header">' + escapeHTML(day) + '</div>';
         dayEvents.forEach(e => {
             const checked = selectedEvents.has(e.idx) ? 'checked' : '';
@@ -642,15 +667,14 @@ function renderEvents() {
 
             let pathClass = '';
             let mogelijkHtml = '';
-            if (paths && e.matchNr && countryGroup) {
-                const grp = countryGroup;
+            if (paths && e.matchNr) {
                 const on1 = paths.first.has(e.matchNr);
                 const on2 = paths.second.has(e.matchNr);
                 const on3 = paths.third.has(e.matchNr);
-                if (on1 && !on2) { pathClass = ' path-1e'; mogelijkHtml = ' <span class="mogelijk-tag">Als plek 1 in groep ' + grp + '</span>'; }
-                else if (on2 && !on1) { pathClass = ' path-2e'; mogelijkHtml = ' <span class="mogelijk-tag tag-2e">Als plek 2 in groep ' + grp + '</span>'; }
-                else if (on1 && on2) { pathClass = ' path-1e'; mogelijkHtml = ' <span class="mogelijk-tag">Als plek 1/2 in groep ' + grp + '</span>'; }
-                else if (on3) { pathClass = ' path-3e'; mogelijkHtml = ' <span class="mogelijk-tag tag-3e">Als plek 3 in groep ' + grp + '</span>'; }
+                if (on1 && !on2) { pathClass = ' path-1e'; mogelijkHtml = ' <span class="mogelijk-tag">mogelijk ★ 1e</span>'; }
+                else if (on2 && !on1) { pathClass = ' path-2e'; mogelijkHtml = ' <span class="mogelijk-tag tag-2e">mogelijk ★ 2e</span>'; }
+                else if (on1 && on2) { pathClass = ' path-1e'; mogelijkHtml = ' <span class="mogelijk-tag">mogelijk ★ 1e/2e</span>'; }
+                else if (on3) { pathClass = ' path-3e'; mogelijkHtml = ' <span class="mogelijk-tag tag-3e">mogelijk (3e)</span>'; }
             }
 
             html += '<div class="event-card' + pathClass + '" onclick="toggleEvent(' + safeIdx + ', event)">' +
@@ -685,16 +709,12 @@ function toggleThirdPaths() {
 }
 
 document.getElementById('selectAll').addEventListener('change', function() {
-    const checked = this.checked;
     const checkboxes = document.querySelectorAll('.event-card input[type="checkbox"]');
     checkboxes.forEach(cb => {
         const idx = parseInt(cb.dataset.idx);
-        const e = events[idx];
-        if (e.group) {
-            if (checked) selectedEvents.add(idx);
-            else selectedEvents.delete(idx);
-            cb.checked = checked;
-        }
+        if (this.checked) selectedEvents.add(idx);
+        else selectedEvents.delete(idx);
+        cb.checked = this.checked;
     });
     updateCount();
 });
@@ -702,7 +722,7 @@ document.getElementById('selectAll').addEventListener('change', function() {
 document.getElementById('downloadIcs').addEventListener('click', downloadICS);
 
 initFilters();
-selectCountry('Nederland');
+renderEvents();
 
 const isMobileDevice = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 if (isMobileDevice) {
