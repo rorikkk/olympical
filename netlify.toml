@@ -7,4 +7,4 @@
 [[redirects]]
   from   = "/"
   to     = "/wk-voetbal-agenda.html"
-  status = 302
+  status = 200
