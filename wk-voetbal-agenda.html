@@ -772,7 +772,8 @@ function renderEvents() {
                     '<label for="selectGroups">' + escapeHTML(t('selectAllGroup')) + '</label></div></div>';
             } else {
                 html += '<div class="section-header">' +
-                    '<span class="section-title">' + escapeHTML(t('knockout')) + ' <span style="font-weight:400;font-size:0.65em;color:#7a8ba3;">' + escapeHTML(t('knockoutNote')) + '</span></span>' +
+                    '<span class="section-title">' + escapeHTML(t('knockout')) + '</span>' +
+                    '<div style="width:100%;text-align:center;font-size:0.8em;color:#7a8ba3;margin-top:-2px;">' + escapeHTML(t('knockoutNote')) + '</div>' +
                     '<div class="section-select"><input type="checkbox" id="selectFinals" onchange="toggleSection(\'finals\', this.checked)">' +
                     '<label for="selectFinals">' + escapeHTML(t('selectAllFinals')) + '</label></div></div>';
             }
