@@ -151,11 +151,11 @@ function getPhase(e) {
 function getPhaseTag(e) {
     if (e.group) return { label: 'Groep ' + e.group, cls: 'tag-' + e.group };
     const p = getPhase(e);
-    if (p === 'Zestiende finales') return { label: '1/16', cls: 'tag-r32' };
-    if (p === 'Achtste finales') return { label: '1/8', cls: 'tag-r16' };
-    if (p === 'Kwartfinales') return { label: 'Kwart', cls: 'tag-qf' };
-    if (p === 'Halve finales') return { label: 'Halve', cls: 'tag-sf' };
-    if (p === 'Troostfinale') return { label: '3e/4e', cls: 'tag-3rd' };
+    if (p === 'Zestiende finales') return { label: 'Zestiende finale', cls: 'tag-r32' };
+    if (p === 'Achtste finales') return { label: 'Achtste finale', cls: 'tag-r16' };
+    if (p === 'Kwartfinales') return { label: 'Kwartfinale', cls: 'tag-qf' };
+    if (p === 'Halve finales') return { label: 'Halve finale', cls: 'tag-sf' };
+    if (p === 'Troostfinale') return { label: 'Troostfinale', cls: 'tag-3rd' };
     return { label: 'Finale', cls: 'tag-final' };
 }
 
