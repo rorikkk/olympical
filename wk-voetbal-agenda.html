@@ -853,6 +853,9 @@ function toggleSection(type, checked) {
 
 function switchLang(newLang) {
     lang = newLang;
+    try {
+        localStorage.setItem('wk2026-lang', lang);
+    } catch {}
     document.getElementById('langNL').classList.toggle('active', lang === 'nl');
     document.getElementById('langEN').classList.toggle('active', lang === 'en');
     document.documentElement.lang = lang;
@@ -867,6 +870,22 @@ function switchLang(newLang) {
 }
 
 document.getElementById('downloadIcs').addEventListener('click', downloadICS);
+
+const urlParams = new URLSearchParams(window.location.search);
+const langParam = urlParams.get('lang');
+if (langParam && ['nl', 'en'].includes(langParam)) {
+    lang = langParam;
+} else if (!langParam && localStorage.getItem('wk2026-lang')) {
+    lang = localStorage.getItem('wk2026-lang');
+}
+document.getElementById('langNL').classList.toggle('active', lang === 'nl');
+document.getElementById('langEN').classList.toggle('active', lang === 'en');
+document.documentElement.lang = lang;
+document.title = lang === 'nl' ? 'WK Voetbal 2026 - Agenda Tool' : 'FIFA World Cup 2026 - Calendar Tool';
+document.getElementById('pageTitle').textContent = t('title');
+document.getElementById('pageSubtitle').innerHTML = t('subtitle') + ' &mdash; by <a href="https://www.linkedin.com/in/rorik/" target="_blank" style="color:#7a8ba3;text-decoration:underline;">Rorik de Boer</a>';
+document.getElementById('labelPhase').textContent = t('phase');
+document.getElementById('labelCountry').textContent = t('country');
 
 initFilters();
 updateMethodInfo();
