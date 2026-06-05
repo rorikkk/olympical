@@ -650,14 +650,14 @@ function renderEvents() {
         if (section !== currentSection) {
             if (section === 'Groepsfase') {
                 html += '<div class="section-header">' +
+                    '<span class="section-title">Groepsfase</span>' +
                     '<div class="section-select"><input type="checkbox" id="selectGroups" onchange="toggleSection(\'group\', this.checked)">' +
-                    '<label for="selectGroups">Selecteer alle groepswedstrijden</label></div>' +
-                    '<span class="section-title">Groepsfase</span></div>';
+                    '<label for="selectGroups">Selecteer alle groepswedstrijden</label></div></div>';
             } else {
                 html += '<div class="section-header">' +
+                    '<span class="section-title">Finales</span>' +
                     '<div class="section-select"><input type="checkbox" id="selectFinals" onchange="toggleSection(\'finals\', this.checked)">' +
-                    '<label for="selectFinals">Selecteer alle finales</label></div>' +
-                    '<span class="section-title">Finales</span></div>';
+                    '<label for="selectFinals">Selecteer alle finales</label></div></div>';
             }
             currentSection = section;
         }
