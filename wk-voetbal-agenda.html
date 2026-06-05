@@ -672,23 +672,21 @@ function renderEvents() {
             const sub = e.matchNr ? e.city + ' · Wedstrijd ' + e.matchNr : e.city;
 
             let pathClass = '';
-            let mogelijkHtml = '';
             if (paths && e.matchNr && countryGroup) {
-                const grp = countryGroup;
                 const on1 = paths.first.has(e.matchNr);
                 const on2 = paths.second.has(e.matchNr);
                 const on3 = paths.third.has(e.matchNr);
-                if (on1 && !on2) { pathClass = ' path-1e'; mogelijkHtml = ' <span class="mogelijk-tag">Als plek 1 in groep ' + grp + '</span>'; }
-                else if (on2 && !on1) { pathClass = ' path-2e'; mogelijkHtml = ' <span class="mogelijk-tag tag-2e">Als plek 2 in groep ' + grp + '</span>'; }
-                else if (on1 && on2) { pathClass = ' path-1e'; mogelijkHtml = ' <span class="mogelijk-tag">Als plek 1/2 in groep ' + grp + '</span>'; }
-                else if (on3) { pathClass = ' path-3e'; mogelijkHtml = ' <span class="mogelijk-tag tag-3e">Als plek 3 in groep ' + grp + '</span>'; }
+                if (on1 && !on2) { pathClass = ' path-1e'; }
+                else if (on2 && !on1) { pathClass = ' path-2e'; }
+                else if (on1 && on2) { pathClass = ' path-1e'; }
+                else if (on3) { pathClass = ' path-3e'; }
             }
 
             html += '<div class="event-card' + pathClass + '" onclick="toggleEvent(' + safeIdx + ', event)">' +
                 '<input type="checkbox" ' + checked + ' data-idx="' + safeIdx + '" onclick="event.stopPropagation(); toggleEvent(' + safeIdx + ', event)">' +
                 '<span class="event-time">' + escapeHTML(e.time) + '</span>' +
                 '<div class="event-details">' +
-                '<div class="event-title"><span class="sport-tag ' + escapeHTML(tag.cls) + '">' + escapeHTML(tag.label) + '</span> ' + escapeHTML(matchTitle) + mogelijkHtml + '</div>' +
+                '<div class="event-title"><span class="sport-tag ' + escapeHTML(tag.cls) + '">' + escapeHTML(tag.label) + '</span> ' + escapeHTML(matchTitle) + '</div>' +
                 '<div class="event-sub">' + escapeHTML(sub) + '</div>' +
                 '</div>' +
                 '<div class="event-buttons">' +
