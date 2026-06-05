@@ -606,17 +606,6 @@ function toggleEvent(idx, evt) {
     updateCount();
 }
 
-function resolveTeamName(name, country, group, paths) {
-    if (!country || !group || !paths) return name;
-    if (name === 'Eerste ' + group || name === 'Tweede ' + group) return country;
-    if (name.startsWith('Beste 3e ') && name.substring(9).split('/').includes(group)) return country;
-    const wm = name.match(/^Winnaar (\d+)$/);
-    if (wm) { const mn = parseInt(wm[1]); if (paths.first.has(mn) || paths.second.has(mn) || paths.third.has(mn)) return country; }
-    const vm = name.match(/^Verliezer (\d+)$/);
-    if (vm) { const mn = parseInt(vm[1]); if (paths.first.has(mn) || paths.second.has(mn) || paths.third.has(mn)) return country; }
-    return name;
-}
-
 function renderEvents() {
     const container = document.getElementById('eventList');
     let paths = null;
@@ -677,11 +666,9 @@ function renderEvents() {
             const checked = selectedEvents.has(e.idx) ? 'checked' : '';
             const tag = getPhaseTag(e);
             const safeIdx = Number(e.idx);
-            const homeName = resolveTeamName(e.home, selectedCountry, countryGroup, paths);
-            const awayName = resolveTeamName(e.away, selectedCountry, countryGroup, paths);
-            const homeFlag = countryFlags[homeName] ? countryFlags[homeName] + ' ' : '';
-            const awayFlag = countryFlags[awayName] ? ' ' + countryFlags[awayName] : '';
-            const matchTitle = homeFlag + homeName + ' - ' + awayName + awayFlag;
+            const homeFlag = countryFlags[e.home] ? countryFlags[e.home] + ' ' : '';
+            const awayFlag = countryFlags[e.away] ? ' ' + countryFlags[e.away] : '';
+            const matchTitle = homeFlag + e.home + ' - ' + e.away + awayFlag;
             const sub = e.matchNr ? e.city + ' · Wedstrijd ' + e.matchNr : e.city;
 
             let pathClass = '';
