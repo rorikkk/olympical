@@ -9,9 +9,13 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0a1628; color: #e0e6ed; min-height: 100vh; }
-        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; position: relative; }
         h1 { text-align: center; margin-bottom: 8px; font-size: 1.8em; background: linear-gradient(135deg, #34d399, #fbbf24); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
         .subtitle { text-align: center; color: #7a8ba3; margin-bottom: 24px; font-size: 0.95em; }
+        .lang-toggle { position: absolute; top: 20px; right: 20px; display: flex; border: 1px solid #2a3a52; border-radius: 6px; overflow: hidden; font-size: 0.8em; }
+        .lang-btn { padding: 4px 10px; background: transparent; color: #7a8ba3; border: none; cursor: pointer; transition: all 0.2s; }
+        .lang-btn.active { background: #1a3d2e; color: #34d399; }
+        .lang-btn:hover:not(.active) { color: #e0e6ed; }
         .filter-label { color: #4a6580; font-size: 0.75em; text-transform: uppercase; letter-spacing: 0.5px; text-align: center; margin-bottom: 6px; margin-top: 8px; }
         .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; justify-content: center; }
         .filter-btn { padding: 8px 16px; border: 1px solid #2a3a52; border-radius: 20px; background: #131f33; color: #94a3b8; cursor: pointer; font-size: 0.85em; transition: all 0.2s; }
@@ -55,9 +59,6 @@
         .tag-sf { background: #3a2e1e; color: #fbbf24; }
         .tag-3rd { background: #3d2b1a; color: #fdba74; }
         .tag-final { background: #3d1a1e; color: #fbbf24; }
-        .mogelijk-tag { font-size: 0.65em; padding: 1px 6px; border-radius: 8px; background: #1e3a2e; color: #34d399; white-space: nowrap; }
-        .mogelijk-tag.tag-2e { background: #1a3350; color: #60a5fa; }
-        .mogelijk-tag.tag-3e { background: #3d2b1a; color: #fbbf24; }
         .path-1e { border-left: 3px solid #34d399; }
         .path-2e { border-left: 3px solid #60a5fa; }
         .path-3e { border-left: 3px dashed #fbbf24; opacity: 0.6; }
@@ -89,32 +90,27 @@
             .event-buttons { width: 100%; margin-top: 4px; }
             .event-gcal, .event-ics { flex: 1; text-align: center; }
             .filter-btn { padding: 6px 10px; font-size: 0.8em; }
+            .lang-toggle { top: 12px; right: 12px; }
         }
     </style>
 </head>
 <body>
 <div class="container">
-    <h1>WK Voetbal 2026</h1>
-    <p class="subtitle">Speelschema Agenda Tool &mdash; by <a href="https://www.linkedin.com/in/rorik/" target="_blank" style="color:#7a8ba3;text-decoration:underline;">Rorik de Boer</a></p>
+    <div class="lang-toggle">
+        <button class="lang-btn active" id="langNL" onclick="switchLang('nl')">NL</button>
+        <button class="lang-btn" id="langEN" onclick="switchLang('en')">EN</button>
+    </div>
+    <h1 id="pageTitle">WK Voetbal 2026</h1>
+    <p class="subtitle" id="pageSubtitle">Speelschema Agenda Tool &mdash; by <a href="https://www.linkedin.com/in/rorik/" target="_blank" style="color:#7a8ba3;text-decoration:underline;">Rorik de Boer</a></p>
 
-    <div class="filter-label">Fase</div>
+    <div class="filter-label" id="labelPhase">Fase</div>
     <div class="filters" id="phaseFilters"></div>
 
-    <div class="filter-label">Land</div>
+    <div class="filter-label" id="labelCountry">Land</div>
     <div class="country-filter" id="countryFilter"></div>
 
-    <div class="method-info" id="methodDesktop">
-        <strong>Hoe werkt het?</strong><br>
-        <strong>Google</strong> &mdash; Voegt die specifieke wedstrijd toe aan je Google Agenda<br>
-        <strong>Apple / ics</strong> &mdash; Download een .ics bestand voor die wedstrijd. Open het bestand voor Apple Agenda of importeer via <a href="https://calendar.google.com/calendar/r/settings/export" target="_blank" style="color:#34d399;">Google Agenda &rarr; Instellingen &rarr; Importeren</a><br>
-        <strong>Download .ics</strong> &mdash; Selecteer meerdere wedstrijden met de checkboxes en download ze als één bestand
-    </div>
-    <div class="method-info" id="methodMobile" style="display:none;">
-        <strong>Hoe werkt het?</strong><br>
-        <strong>Google</strong> &mdash; Voegt die specifieke wedstrijd toe aan je Google Agenda<br>
-        <strong>Apple / ics</strong> &mdash; Download een .ics bestand voor die wedstrijd<br>
-        <strong>Download .ics</strong> &mdash; Selecteer meerdere wedstrijden en download ze als één bestand
-    </div>
+    <div class="method-info" id="methodDesktop"></div>
+    <div class="method-info" id="methodMobile" style="display:none;"></div>
 
     <div id="eventList"></div>
 </div>
@@ -126,40 +122,142 @@
 
 <script>
 const MATCH_DURATION_MS = 120 * 60 * 1000;
-const DAYS_NL = ['Zondag','Maandag','Dinsdag','Woensdag','Donderdag','Vrijdag','Zaterdag'];
-const MONTHS_NL = ['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'];
+
+const i18n = {
+    nl: {
+        title: 'WK Voetbal 2026',
+        subtitle: 'Speelschema Agenda Tool',
+        phase: 'Fase',
+        country: 'Land',
+        allMatches: 'Alle wedstrijden',
+        phases: ['Groepsfase','Zestiende finales','Achtste finales','Kwartfinales','Halve finales','Troostfinale','Finale'],
+        moreCountries: 'Meer landen...',
+        groupStage: 'Groepsfase',
+        knockout: 'Finales',
+        knockoutNote: '(speelschema wordt geüpdatet vanaf 27-6)',
+        selectAllGroup: 'Selecteer alle groepswedstrijden',
+        selectAllFinals: 'Selecteer alle finales',
+        noResults: 'Geen wedstrijden gevonden',
+        selected: 'geselecteerd',
+        showThird: '▼ Toon mogelijke routes bij 3e plaats',
+        hideThird: '▲ Verberg routes bij 3e plaats',
+        matches: 'wedstrijden',
+        match: 'Wedstrijd',
+        group: 'Groep',
+        days: ['Zondag','Maandag','Dinsdag','Woensdag','Donderdag','Vrijdag','Zaterdag'],
+        months: ['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'],
+        tagR32: 'Zestiende finale', tagR16: 'Achtste finale', tagQF: 'Kwartfinale',
+        tagSF: 'Halve finale', tag3rd: 'Troostfinale', tagFinal: 'Finale',
+        howTitle: 'Hoe werkt het?',
+        howGoogle: 'Voegt die specifieke wedstrijd toe aan je Google Agenda',
+        howApple: 'Download een .ics bestand voor die wedstrijd',
+        howAppleDesktop: 'Download een .ics bestand voor die wedstrijd. Open het bestand voor Apple Agenda of importeer via <a href="https://calendar.google.com/calendar/r/settings/export" target="_blank" style="color:#34d399;">Google Agenda → Instellingen → Importeren</a>',
+        howBulk: 'Selecteer meerdere wedstrijden met de checkboxes en download ze als één bestand',
+        howBulkMobile: 'Selecteer meerdere wedstrijden en download ze als één bestand',
+        calPrefix: 'WK',
+        calDetail: 'WK 2026 Voetbal',
+        calCity: 'Speelstad',
+        first: 'Eerste', second: 'Tweede', best3rd: 'Beste 3e',
+        winner: 'Winnaar', loser: 'Verliezer',
+    },
+    en: {
+        title: 'FIFA World Cup 2026',
+        subtitle: 'Match Schedule Calendar Tool',
+        phase: 'Phase',
+        country: 'Country',
+        allMatches: 'All matches',
+        phases: ['Group stage','Round of 32','Round of 16','Quarter-finals','Semi-finals','Third-place match','Final'],
+        moreCountries: 'More countries...',
+        groupStage: 'Group stage',
+        knockout: 'Knockout stage',
+        knockoutNote: '(schedule will be updated from June 27)',
+        selectAllGroup: 'Select all group matches',
+        selectAllFinals: 'Select all knockout matches',
+        noResults: 'No matches found',
+        selected: 'selected',
+        showThird: '▼ Show possible routes for 3rd place',
+        hideThird: '▲ Hide routes for 3rd place',
+        matches: 'matches',
+        match: 'Match',
+        group: 'Group',
+        days: ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+        months: ['January','February','March','April','May','June','July','August','September','October','November','December'],
+        tagR32: 'Round of 32', tagR16: 'Round of 16', tagQF: 'Quarter-final',
+        tagSF: 'Semi-final', tag3rd: 'Third-place', tagFinal: 'Final',
+        howTitle: 'How does it work?',
+        howGoogle: 'Adds this specific match to your Google Calendar',
+        howApple: 'Download an .ics file for this match',
+        howAppleDesktop: 'Download an .ics file for this match. Open it for Apple Calendar or import via <a href="https://calendar.google.com/calendar/r/settings/export" target="_blank" style="color:#34d399;">Google Calendar → Settings → Import</a>',
+        howBulk: 'Select multiple matches with the checkboxes and download them as one file',
+        howBulkMobile: 'Select multiple matches and download them as one file',
+        calPrefix: 'WC',
+        calDetail: 'FIFA World Cup 2026',
+        calCity: 'Venue',
+        first: '1st', second: '2nd', best3rd: 'Best 3rd',
+        winner: 'Winner', loser: 'Loser',
+    }
+};
+
+const countryEN = {
+    "Nederland":"Netherlands","Duitsland":"Germany","Spanje":"Spain","Zuid-Afrika":"South Africa",
+    "Zuid-Korea":"South Korea","Tsjechië":"Czech Republic","Bosnië":"Bosnia","Zwitserland":"Switzerland",
+    "Brazilië":"Brazil","Marokko":"Morocco","Haïti":"Haiti","Schotland":"Scotland",
+    "Verenigde Staten":"United States","Turkije":"Turkey","Ivoorkust":"Ivory Coast",
+    "België":"Belgium","Egypte":"Egypt","Nieuw-Zeeland":"New Zealand",
+    "Kaapverdië":"Cape Verde","Saoedi-Arabië":"Saudi Arabia",
+    "Frankrijk":"France","Noorwegen":"Norway","Argentinië":"Argentina",
+    "Algerije":"Algeria","Oostenrijk":"Austria","Jordanië":"Jordan",
+    "Oezbekistan":"Uzbekistan","Engeland":"England","Kroatië":"Croatia",
+    "Zweden":"Sweden","Tunesië":"Tunisia","Australië":"Australia","Irak":"Iraq"
+};
+
+const cityEN = { "Mexico-Stad":"Mexico City" };
+
+let lang = 'nl';
+function t(key) { return i18n[lang][key]; }
+function cn(name) { return lang === 'en' && countryEN[name] ? countryEN[name] : name; }
+function cityName(name) { return lang === 'en' && cityEN[name] ? cityEN[name] : name; }
+
+function translateTeam(name) {
+    if (lang === 'nl') return name;
+    const l = i18n.en;
+    let m;
+    if ((m = name.match(/^Eerste (.+)$/))) return l.first + ' ' + m[1];
+    if ((m = name.match(/^Tweede (.+)$/))) return l.second + ' ' + m[1];
+    if ((m = name.match(/^Beste 3e (.+)$/))) return l.best3rd + ' ' + m[1];
+    if ((m = name.match(/^Winnaar (\d+)$/))) return l.winner + ' ' + m[1];
+    if ((m = name.match(/^Verliezer (\d+)$/))) return l.loser + ' ' + m[1];
+    return cn(name);
+}
 
 function formatDay(dateStr) {
     const d = new Date(dateStr + 'T12:00:00');
-    return DAYS_NL[d.getDay()] + ' ' + d.getDate() + ' ' + MONTHS_NL[d.getMonth()];
+    return t('days')[d.getDay()] + ' ' + d.getDate() + ' ' + t('months')[d.getMonth()];
 }
 
-function getPhase(e) {
-    if (!e.matchNr) return 'Groepsfase';
-    if (e.matchNr <= 88) return 'Zestiende finales';
-    if (e.matchNr <= 96) return 'Achtste finales';
-    if (e.matchNr <= 100) return 'Kwartfinales';
-    if (e.matchNr <= 102) return 'Halve finales';
-    if (e.matchNr === 103) return 'Troostfinale';
-    return 'Finale';
+function getPhaseIdx(e) {
+    if (!e.matchNr) return 0;
+    if (e.matchNr <= 88) return 1;
+    if (e.matchNr <= 96) return 2;
+    if (e.matchNr <= 100) return 3;
+    if (e.matchNr <= 102) return 4;
+    if (e.matchNr === 103) return 5;
+    return 6;
 }
+
+function getPhase(e) { return i18n.nl.phases[getPhaseIdx(e)]; }
 
 function getPhaseTag(e) {
-    if (e.group) return { label: 'Groep ' + e.group, cls: 'tag-' + e.group };
-    const p = getPhase(e);
-    if (p === 'Zestiende finales') return { label: 'Zestiende finale', cls: 'tag-r32' };
-    if (p === 'Achtste finales') return { label: 'Achtste finale', cls: 'tag-r16' };
-    if (p === 'Kwartfinales') return { label: 'Kwartfinale', cls: 'tag-qf' };
-    if (p === 'Halve finales') return { label: 'Halve finale', cls: 'tag-sf' };
-    if (p === 'Troostfinale') return { label: 'Troostfinale', cls: 'tag-3rd' };
-    return { label: 'Finale', cls: 'tag-final' };
+    if (e.group) return { label: t('group') + ' ' + e.group, cls: 'tag-' + e.group };
+    const idx = getPhaseIdx(e);
+    const tags = [null, 'tagR32', 'tagR16', 'tagQF', 'tagSF', 'tag3rd', 'tagFinal'];
+    const cls  = [null, 'tag-r32', 'tag-r16', 'tag-qf', 'tag-sf', 'tag-3rd', 'tag-final'];
+    return { label: t(tags[idx]), cls: cls[idx] };
 }
 
-const PHASES = ['Groepsfase','Zestiende finales','Achtste finales','Kwartfinales','Halve finales','Troostfinale','Finale'];
-const GROUPS = ['A','B','C','D','E','F','G','H','I','J','K','L'];
+const PHASES_NL = i18n.nl.phases;
 
 const events = [
-    // Groepsfase - Speeldag 1
     { date:"2026-06-11", time:"21:00", home:"Mexico", away:"Zuid-Afrika", group:"A", city:"Mexico-Stad" },
     { date:"2026-06-12", time:"04:00", home:"Zuid-Korea", away:"Tsjechië", group:"A", city:"Guadalajara" },
     { date:"2026-06-12", time:"21:00", home:"Canada", away:"Bosnië", group:"B", city:"Toronto" },
@@ -184,7 +282,6 @@ const events = [
     { date:"2026-06-17", time:"21:00", home:"Engeland", away:"Kroatië", group:"L", city:"Dallas" },
     { date:"2026-06-18", time:"01:00", home:"Ghana", away:"Panama", group:"L", city:"Toronto" },
     { date:"2026-06-18", time:"04:00", home:"Oezbekistan", away:"Colombia", group:"K", city:"Mexico-Stad" },
-    // Groepsfase - Speeldag 2
     { date:"2026-06-18", time:"18:00", home:"Tsjechië", away:"Zuid-Afrika", group:"A", city:"Atlanta" },
     { date:"2026-06-18", time:"21:00", home:"Zwitserland", away:"Bosnië", group:"B", city:"Los Angeles" },
     { date:"2026-06-19", time:"00:00", home:"Canada", away:"Qatar", group:"B", city:"Vancouver" },
@@ -209,7 +306,6 @@ const events = [
     { date:"2026-06-23", time:"22:00", home:"Engeland", away:"Ghana", group:"L", city:"Boston" },
     { date:"2026-06-24", time:"01:00", home:"Panama", away:"Kroatië", group:"L", city:"Toronto" },
     { date:"2026-06-24", time:"04:00", home:"Colombia", away:"DR Congo", group:"K", city:"Guadalajara" },
-    // Groepsfase - Speeldag 3
     { date:"2026-06-24", time:"21:00", home:"Zwitserland", away:"Canada", group:"B", city:"Vancouver" },
     { date:"2026-06-24", time:"21:00", home:"Bosnië", away:"Qatar", group:"B", city:"Seattle" },
     { date:"2026-06-25", time:"00:00", home:"Marokko", away:"Haïti", group:"C", city:"Atlanta" },
@@ -234,7 +330,6 @@ const events = [
     { date:"2026-06-28", time:"01:30", home:"DR Congo", away:"Oezbekistan", group:"K", city:"Atlanta" },
     { date:"2026-06-28", time:"04:00", home:"Algerije", away:"Oostenrijk", group:"J", city:"Kansas City" },
     { date:"2026-06-28", time:"04:00", home:"Jordanië", away:"Argentinië", group:"J", city:"Dallas" },
-    // Zestiende finales
     { date:"2026-06-28", time:"21:00", home:"Tweede A", away:"Tweede B", city:"Los Angeles", matchNr:73 },
     { date:"2026-06-29", time:"19:00", home:"Eerste C", away:"Tweede F", city:"Houston", matchNr:76 },
     { date:"2026-06-29", time:"22:30", home:"Eerste E", away:"Beste 3e A/B/C/D/F", city:"Boston", matchNr:74 },
@@ -251,7 +346,6 @@ const events = [
     { date:"2026-07-03", time:"20:00", home:"Tweede D", away:"Tweede G", city:"Dallas", matchNr:88 },
     { date:"2026-07-04", time:"00:00", home:"Eerste J", away:"Tweede H", city:"Miami", matchNr:86 },
     { date:"2026-07-04", time:"03:30", home:"Eerste K", away:"Beste 3e D/E/I/J/L", city:"Kansas City", matchNr:87 },
-    // Achtste finales
     { date:"2026-07-04", time:"19:00", home:"Winnaar 73", away:"Winnaar 75", city:"Houston", matchNr:90 },
     { date:"2026-07-04", time:"23:00", home:"Winnaar 74", away:"Winnaar 77", city:"Philadelphia", matchNr:89 },
     { date:"2026-07-05", time:"22:00", home:"Winnaar 76", away:"Winnaar 78", city:"New York", matchNr:91 },
@@ -260,17 +354,13 @@ const events = [
     { date:"2026-07-07", time:"02:00", home:"Winnaar 81", away:"Winnaar 82", city:"Seattle", matchNr:94 },
     { date:"2026-07-07", time:"18:00", home:"Winnaar 86", away:"Winnaar 88", city:"Atlanta", matchNr:95 },
     { date:"2026-07-07", time:"22:00", home:"Winnaar 85", away:"Winnaar 87", city:"Vancouver", matchNr:96 },
-    // Kwartfinales
     { date:"2026-07-09", time:"22:00", home:"Winnaar 89", away:"Winnaar 90", city:"Boston", matchNr:97 },
     { date:"2026-07-10", time:"21:00", home:"Winnaar 93", away:"Winnaar 94", city:"Los Angeles", matchNr:98 },
     { date:"2026-07-11", time:"23:00", home:"Winnaar 91", away:"Winnaar 92", city:"Miami", matchNr:99 },
     { date:"2026-07-12", time:"02:00", home:"Winnaar 95", away:"Winnaar 96", city:"Kansas City", matchNr:100 },
-    // Halve finales
     { date:"2026-07-14", time:"21:00", home:"Winnaar 97", away:"Winnaar 98", city:"Dallas", matchNr:101 },
     { date:"2026-07-15", time:"21:00", home:"Winnaar 99", away:"Winnaar 100", city:"Atlanta", matchNr:102 },
-    // Troostfinale
     { date:"2026-07-18", time:"21:00", home:"Verliezer 101", away:"Verliezer 102", city:"Miami", matchNr:103 },
-    // Finale
     { date:"2026-07-19", time:"21:00", home:"Winnaar 101", away:"Winnaar 102", city:"New York", matchNr:104 },
 ];
 
@@ -389,9 +479,13 @@ let selectedEvents = new Set();
 
 function initFilters() {
     const phaseC = document.getElementById('phaseFilters');
+    phaseC.innerHTML = '';
+    const countryC = document.getElementById('countryFilter');
+    countryC.innerHTML = '';
+
     const allPhaseBtn = document.createElement('button');
-    allPhaseBtn.className = 'filter-btn all active';
-    allPhaseBtn.textContent = 'Alle wedstrijden';
+    allPhaseBtn.className = 'filter-btn all' + (activePhaseFilters.size === 0 ? ' active' : '');
+    allPhaseBtn.textContent = t('allMatches');
     allPhaseBtn.onclick = () => {
         activePhaseFilters.clear();
         phaseC.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -399,27 +493,29 @@ function initFilters() {
         renderEvents();
     };
     phaseC.appendChild(allPhaseBtn);
-    PHASES.forEach(phase => {
+    PHASES_NL.forEach((phaseNL, idx) => {
         const btn = document.createElement('button');
-        btn.className = 'filter-btn';
-        btn.textContent = phase;
+        btn.className = 'filter-btn' + (activePhaseFilters.has(phaseNL) ? ' active' : '');
+        btn.textContent = t('phases')[idx];
+        btn.dataset.phaseNl = phaseNL;
         btn.onclick = () => {
-            if (activePhaseFilters.has(phase)) activePhaseFilters.delete(phase);
-            else activePhaseFilters.add(phase);
+            if (activePhaseFilters.has(phaseNL)) activePhaseFilters.delete(phaseNL);
+            else activePhaseFilters.add(phaseNL);
             phaseC.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             if (activePhaseFilters.size === 0) allPhaseBtn.classList.add('active');
-            else activePhaseFilters.forEach(p => [...phaseC.children].find(b => b.textContent === p)?.classList.add('active'));
+            else phaseC.querySelectorAll('.filter-btn[data-phase-nl]').forEach(b => {
+                if (activePhaseFilters.has(b.dataset.phaseNl)) b.classList.add('active');
+            });
             renderEvents();
         };
         phaseC.appendChild(btn);
     });
 
-    const countryC = document.getElementById('countryFilter');
     favoriteCountries.forEach(country => {
         const btn = document.createElement('button');
-        btn.className = 'country-btn';
+        btn.className = 'country-btn' + (selectedCountry === country ? ' active' : '');
         btn.dataset.country = country;
-        btn.textContent = (countryFlags[country] || '') + ' ' + country;
+        btn.textContent = (countryFlags[country] || '') + ' ' + cn(country);
         btn.onclick = () => selectCountry(selectedCountry === country ? null : country);
         countryC.appendChild(btn);
     });
@@ -427,19 +523,20 @@ function initFilters() {
     select.id = 'countrySelect';
     const defaultOpt = document.createElement('option');
     defaultOpt.value = '';
-    defaultOpt.textContent = 'Meer landen...';
+    defaultOpt.textContent = t('moreCountries');
     select.appendChild(defaultOpt);
     allCountries.filter(c => !favoriteCountries.includes(c)).forEach(c => {
         const opt = document.createElement('option');
         opt.value = c;
-        opt.textContent = (countryFlags[c] || '') + ' ' + c;
+        opt.textContent = (countryFlags[c] || '') + ' ' + cn(c);
+        if (selectedCountry === c) opt.selected = true;
         select.appendChild(opt);
     });
     select.onchange = () => { selectCountry(select.value || null); };
     countryC.appendChild(select);
 
     const clearBtn = document.createElement('button');
-    clearBtn.className = 'country-btn clear-btn hidden';
+    clearBtn.className = 'country-btn clear-btn' + (selectedCountry ? '' : ' hidden');
     clearBtn.id = 'clearCountry';
     clearBtn.textContent = '✕';
     clearBtn.onclick = () => selectCountry(null);
@@ -458,6 +555,20 @@ function selectCountry(country) {
     renderEvents();
 }
 
+function updateMethodInfo() {
+    const isMobile = document.getElementById('methodMobile').style.display !== 'none';
+    document.getElementById('methodDesktop').innerHTML =
+        '<strong>' + t('howTitle') + '</strong><br>' +
+        '<strong>Google</strong> — ' + t('howGoogle') + '<br>' +
+        '<strong>Apple / ics</strong> — ' + t('howAppleDesktop') + '<br>' +
+        '<strong>Download .ics</strong> — ' + t('howBulk');
+    document.getElementById('methodMobile').innerHTML =
+        '<strong>' + t('howTitle') + '</strong><br>' +
+        '<strong>Google</strong> — ' + t('howGoogle') + '<br>' +
+        '<strong>Apple / ics</strong> — ' + t('howApple') + '<br>' +
+        '<strong>Download .ics</strong> — ' + t('howBulkMobile');
+}
+
 function escapeHTML(str) {
     const div = document.createElement('div');
     div.textContent = str;
@@ -469,11 +580,13 @@ function getGCalUrl(e) {
     const start = new Date(e.date + 'T' + h.padStart(2,'0') + ':' + m.padStart(2,'0') + ':00');
     const end = new Date(start.getTime() + MATCH_DURATION_MS);
     const fmt = d => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
-    const phase = getPhase(e);
-    const info = e.group ? ' (Groep ' + e.group + ')' : ' (' + phase + ')';
-    const title = 'WK: ' + e.home + ' - ' + e.away + info;
-    const loc = e.city + ', ' + (cityCountry[e.city] || 'Verenigde Staten');
-    return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent(title) + '&dates=' + fmt(start) + '/' + fmt(end) + '&details=' + encodeURIComponent('WK 2026 Voetbal\nSpeelstad: ' + loc) + '&location=' + encodeURIComponent(loc);
+    const phase = getPhaseTag(e).label;
+    const homeD = e.group ? cn(e.home) : translateTeam(e.home);
+    const awayD = e.group ? cn(e.away) : translateTeam(e.away);
+    const info = e.group ? ' (' + t('group') + ' ' + e.group + ')' : ' (' + phase + ')';
+    const title = t('calPrefix') + ': ' + homeD + ' - ' + awayD + info;
+    const loc = cityName(e.city) + ', ' + cn(cityCountry[e.city] || 'Verenigde Staten');
+    return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent(title) + '&dates=' + fmt(start) + '/' + fmt(end) + '&details=' + encodeURIComponent(t('calDetail') + '\n' + t('calCity') + ': ' + loc) + '&location=' + encodeURIComponent(loc);
 }
 
 function toICSDate(date, time) {
@@ -527,12 +640,14 @@ function generateICS(indices) {
 
     indices.forEach(idx => {
         const e = events[idx];
-        const phase = getPhase(e);
-        const info = e.group ? ' (Groep ' + e.group + ')' : ' (' + phase + ')';
+        const phase = getPhaseTag(e).label;
+        const homeD = e.group ? cn(e.home) : translateTeam(e.home);
+        const awayD = e.group ? cn(e.away) : translateTeam(e.away);
+        const info = e.group ? ' (' + t('group') + ' ' + e.group + ')' : ' (' + phase + ')';
         const uid = 'wk2026-' + e.date + '-' + e.time.replace(':','') + '-' + idx + '@olympical.nl';
-        const summary = escapeICS('WK: ' + e.home + ' - ' + e.away + info);
-        const loc = e.city + ', ' + (cityCountry[e.city] || 'Verenigde Staten');
-        const description = escapeICS('WK 2026 Voetbal\\nSpeelstad: ' + loc);
+        const summary = escapeICS(t('calPrefix') + ': ' + homeD + ' - ' + awayD + info);
+        const loc = cityName(e.city) + ', ' + cn(cityCountry[e.city] || 'Verenigde Staten');
+        const description = escapeICS(t('calDetail') + '\\n' + t('calCity') + ': ' + loc);
 
         ics += icsLine('BEGIN:VEVENT');
         ics += icsLine('UID:' + uid);
@@ -572,7 +687,9 @@ function downloadSingleICS(idx) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'WK ' + e.home + ' - ' + e.away + '.ics';
+    const homeD = e.group ? cn(e.home) : translateTeam(e.home);
+    const awayD = e.group ? cn(e.away) : translateTeam(e.away);
+    a.download = t('calPrefix') + ' ' + homeD + ' - ' + awayD + '.ics';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -581,7 +698,7 @@ function downloadSingleICS(idx) {
 
 function updateCount() {
     const count = selectedEvents.size;
-    document.getElementById('floatingCount').textContent = count + ' geselecteerd';
+    document.getElementById('floatingCount').textContent = count + ' ' + t('selected');
     document.getElementById('floatingBar').classList.toggle('visible', count > 0);
     const sg = document.getElementById('selectGroups');
     if (sg) {
@@ -631,7 +748,7 @@ function renderEvents() {
     }
 
     if (filtered.length === 0) {
-        container.innerHTML = '<div class="no-results">Geen wedstrijden gevonden</div>';
+        container.innerHTML = '<div class="no-results">' + escapeHTML(t('noResults')) + '</div>';
         return;
     }
 
@@ -646,18 +763,19 @@ function renderEvents() {
     let currentSection = null;
     for (const [day, dayEvents] of Object.entries(grouped)) {
         const firstPhase = dayEvents[0].phase;
-        const section = firstPhase === 'Groepsfase' ? 'Groepsfase' : 'Finales';
+        const section = firstPhase === 'Groepsfase' ? 'group' : 'finals';
         if (section !== currentSection) {
-            if (section === 'Groepsfase') {
+            if (section === 'group') {
                 html += '<div class="section-header">' +
-                    '<span class="section-title">Groepsfase</span>' +
+                    '<span class="section-title">' + escapeHTML(t('groupStage')) + '</span>' +
                     '<div class="section-select"><input type="checkbox" id="selectGroups" onchange="toggleSection(\'group\', this.checked)">' +
-                    '<label for="selectGroups">Selecteer alle groepswedstrijden</label></div></div>';
+                    '<label for="selectGroups">' + escapeHTML(t('selectAllGroup')) + '</label></div></div>';
             } else {
                 html += '<div class="section-header">' +
-                    '<span class="section-title">Finales <span style="font-weight:400;font-size:0.65em;color:#7a8ba3;">(speelschema wordt geüpdatet vanaf 27-6)</span></span>' +
+                    '<span class="section-title">' + escapeHTML(t('knockout')) + '</span>' +
+                    '<div style="width:100%;text-align:center;font-size:0.8em;color:#7a8ba3;margin-top:-2px;">' + escapeHTML(t('knockoutNote')) + '</div>' +
                     '<div class="section-select"><input type="checkbox" id="selectFinals" onchange="toggleSection(\'finals\', this.checked)">' +
-                    '<label for="selectFinals">Selecteer alle finales</label></div></div>';
+                    '<label for="selectFinals">' + escapeHTML(t('selectAllFinals')) + '</label></div></div>';
             }
             currentSection = section;
         }
@@ -666,10 +784,12 @@ function renderEvents() {
             const checked = selectedEvents.has(e.idx) ? 'checked' : '';
             const tag = getPhaseTag(e);
             const safeIdx = Number(e.idx);
+            const homeName = e.group ? cn(e.home) : translateTeam(e.home);
+            const awayName = e.group ? cn(e.away) : translateTeam(e.away);
             const homeFlag = countryFlags[e.home] ? countryFlags[e.home] + ' ' : '';
             const awayFlag = countryFlags[e.away] ? ' ' + countryFlags[e.away] : '';
-            const matchTitle = homeFlag + e.home + ' - ' + e.away + awayFlag;
-            const sub = e.matchNr ? e.city + ' · Wedstrijd ' + e.matchNr : e.city;
+            const matchTitle = homeFlag + homeName + ' - ' + awayName + awayFlag;
+            const sub = e.matchNr ? cityName(e.city) + ' · ' + t('match') + ' ' + e.matchNr : cityName(e.city);
 
             let pathClass = '';
             if (paths && e.matchNr && countryGroup) {
@@ -702,7 +822,7 @@ function renderEvents() {
         const thirdCount = [...paths.third].filter(mn => !paths.first.has(mn) && !paths.second.has(mn)).length;
         if (thirdCount > 0) {
             html += '<div class="third-place-toggle" onclick="toggleThirdPaths()">' +
-                (showThirdPaths ? '▲ Verberg routes bij 3e plaats' : '▼ Toon mogelijke routes bij 3e plaats (' + thirdCount + ' wedstrijden)') +
+                (showThirdPaths ? t('hideThird') : t('showThird') + ' (' + thirdCount + ' ' + t('matches') + ')') +
                 '</div>';
         }
     }
@@ -731,9 +851,44 @@ function toggleSection(type, checked) {
     updateCount();
 }
 
+function switchLang(newLang) {
+    lang = newLang;
+    try {
+        localStorage.setItem('wk2026-lang', lang);
+    } catch {}
+    document.getElementById('langNL').classList.toggle('active', lang === 'nl');
+    document.getElementById('langEN').classList.toggle('active', lang === 'en');
+    document.documentElement.lang = lang;
+    document.title = lang === 'nl' ? 'WK Voetbal 2026 - Agenda Tool' : 'FIFA World Cup 2026 - Calendar Tool';
+    document.getElementById('pageTitle').textContent = t('title');
+    document.getElementById('pageSubtitle').innerHTML = t('subtitle') + ' &mdash; by <a href="https://www.linkedin.com/in/rorik/" target="_blank" style="color:#7a8ba3;text-decoration:underline;">Rorik de Boer</a>';
+    document.getElementById('labelPhase').textContent = t('phase');
+    document.getElementById('labelCountry').textContent = t('country');
+    updateMethodInfo();
+    initFilters();
+    renderEvents();
+}
+
 document.getElementById('downloadIcs').addEventListener('click', downloadICS);
 
+const urlParams = new URLSearchParams(window.location.search);
+const langParam = urlParams.get('lang');
+if (langParam && ['nl', 'en'].includes(langParam)) {
+    lang = langParam;
+} else if (!langParam && localStorage.getItem('wk2026-lang')) {
+    lang = localStorage.getItem('wk2026-lang');
+}
+document.getElementById('langNL').classList.toggle('active', lang === 'nl');
+document.getElementById('langEN').classList.toggle('active', lang === 'en');
+document.documentElement.lang = lang;
+document.title = lang === 'nl' ? 'WK Voetbal 2026 - Agenda Tool' : 'FIFA World Cup 2026 - Calendar Tool';
+document.getElementById('pageTitle').textContent = t('title');
+document.getElementById('pageSubtitle').innerHTML = t('subtitle') + ' &mdash; by <a href="https://www.linkedin.com/in/rorik/" target="_blank" style="color:#7a8ba3;text-decoration:underline;">Rorik de Boer</a>';
+document.getElementById('labelPhase').textContent = t('phase');
+document.getElementById('labelCountry').textContent = t('country');
+
 initFilters();
+updateMethodInfo();
 selectCountry('Nederland');
 
 const isMobileDevice = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
